@@ -8,17 +8,17 @@ import (
 
 	"github.com/CoreumFoundation/crust/znet/infra"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/callisto"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/faucet"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/gaiad"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/hermes"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/osmosis"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/xrpl"
 )
 
 // AppPrefix constants are the prefixes used in the app factories.
 const (
-	AppPrefixCored      = "cored"
+	AppPrefixTXd        = "txd"
 	AppPrefixIBC        = "ibc"
 	AppPrefixExplorer   = "explorer"
 	AppPrefixMonitoring = "monitoring"
@@ -28,9 +28,9 @@ const (
 
 // Predefined Profiles.
 const (
-	Profile1Cored     = "1cored"
-	Profile3Cored     = "3cored"
-	Profile5Cored     = "5cored"
+	Profile1TXd       = "1txd"
+	Profile3TXd       = "3txd"
+	Profile5TXd       = "5txd"
 	ProfileDevNet     = "devnet"
 	ProfileIBC        = "ibc"
 	ProfileFaucet     = "faucet"
@@ -42,9 +42,9 @@ const (
 )
 
 var profiles = []string{
-	Profile1Cored,
-	Profile3Cored,
-	Profile5Cored,
+	Profile1TXd,
+	Profile3TXd,
+	Profile5TXd,
 	ProfileDevNet,
 	ProfileIBC,
 	ProfileFaucet,
@@ -55,7 +55,7 @@ var profiles = []string{
 	ProfileDEX,
 }
 
-var defaultProfiles = []string{Profile1Cored}
+var defaultProfiles = []string{Profile1TXd}
 
 var availableProfiles = func() map[string]struct{} {
 	v := map[string]struct{}{}
@@ -78,16 +78,16 @@ func DefaultProfiles() []string {
 // ValidateProfiles verifies that profie set is correct.
 func ValidateProfiles(profiles []string) error {
 	pMap := map[string]bool{}
-	coredProfilePresent := false
+	txdProfilePresent := false
 	for _, p := range profiles {
 		if _, ok := availableProfiles[p]; !ok {
 			return errors.Errorf("profile %s does not exist", p)
 		}
-		if p == Profile1Cored || p == Profile3Cored || p == Profile5Cored || p == ProfileDevNet {
-			if coredProfilePresent {
-				return errors.Errorf("profiles 1cored, 3cored, 5cored and devnet are mutually exclusive")
+		if p == Profile1TXd || p == Profile3TXd || p == Profile5TXd || p == ProfileDevNet {
+			if txdProfilePresent {
+				return errors.Errorf("profiles 1txd, 3txd, 5txd and devnet are mutually exclusive")
 			}
-			coredProfilePresent = true
+			txdProfilePresent = true
 		}
 		pMap[p] = true
 	}
@@ -99,14 +99,14 @@ func ValidateProfiles(profiles []string) error {
 func MergeProfiles(pMap map[string]bool) map[string]bool {
 	switch {
 	case pMap[ProfileDevNet]:
-		delete(pMap, Profile1Cored)
-		delete(pMap, Profile3Cored)
-		delete(pMap, Profile5Cored)
-	case pMap[Profile5Cored]:
-		delete(pMap, Profile1Cored)
-		delete(pMap, Profile3Cored)
-	case pMap[Profile3Cored]:
-		delete(pMap, Profile1Cored)
+		delete(pMap, Profile1TXd)
+		delete(pMap, Profile3TXd)
+		delete(pMap, Profile5TXd)
+	case pMap[Profile5TXd]:
+		delete(pMap, Profile1TXd)
+		delete(pMap, Profile3TXd)
+	case pMap[Profile3TXd]:
+		delete(pMap, Profile1TXd)
 	}
 
 	return pMap
@@ -115,8 +115,8 @@ func MergeProfiles(pMap map[string]bool) map[string]bool {
 // BuildAppSet builds the application set to deploy based on provided profiles.
 //
 //nolint:funlen
-func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, coredVersion string) (
-	infra.AppSet, cored.Cored, error,
+func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, txdVersion string) (
+	infra.AppSet, txd.TXd, error,
 ) {
 	pMap := lo.SliceToMap(profiles, func(profile string) (string, bool) {
 		return profile, true
@@ -124,7 +124,7 @@ func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, coredVer
 
 	if pMap[ProfileIBC] || pMap[ProfileFaucet] || pMap[ProfileXRPLBridge] ||
 		pMap[ProfileExplorer] || pMap[ProfileMonitoring] {
-		pMap[Profile1Cored] = true
+		pMap[Profile1TXd] = true
 	}
 
 	if pMap[ProfileXRPLBridge] {
@@ -133,9 +133,9 @@ func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, coredVer
 
 	MergeProfiles(pMap)
 
-	validatorCount, sentryCount, seedCount, fullCount := decideNumOfCoredNodes(pMap)
+	validatorCount, sentryCount, seedCount, fullCount := decideNumOfTXdNodes(pMap)
 
-	var coredApp cored.Cored
+	var txdApp txd.TXd
 	var appSet infra.AppSet
 
 	var genDEX bool
@@ -143,31 +143,31 @@ func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, coredVer
 		genDEX = true
 	}
 
-	coredApp, coredNodes, err := appF.CoredNetwork(
+	txdApp, txdNodes, err := appF.TXdNetwork(
 		ctx,
-		AppPrefixCored,
-		cored.DefaultPorts,
+		AppPrefixTXd,
+		txd.DefaultPorts,
 		validatorCount, sentryCount, seedCount, fullCount,
-		coredVersion, genDEX,
+		txdVersion, genDEX,
 	)
 	if err != nil {
-		return nil, cored.Cored{}, err
+		return nil, txd.TXd{}, err
 	}
-	for _, coredNode := range coredNodes {
-		appSet = append(appSet, coredNode)
+	for _, txdNode := range txdNodes {
+		appSet = append(appSet, txdNode)
 	}
 
 	if pMap[ProfileIBC] {
-		appSet = append(appSet, appF.IBC(AppPrefixIBC, coredApp)...)
+		appSet = append(appSet, appF.IBC(AppPrefixIBC, txdApp)...)
 	}
 
 	var faucetApp faucet.Faucet
 	if pMap[ProfileFaucet] {
-		appSet = append(appSet, appF.Faucet(string(faucet.AppType), coredApp))
+		appSet = append(appSet, appF.Faucet(string(faucet.AppType), txdApp))
 	}
 
 	if pMap[ProfileExplorer] {
-		appSet = append(appSet, appF.BlockExplorer(AppPrefixExplorer, coredApp).ToAppSet()...)
+		appSet = append(appSet, appF.BlockExplorer(AppPrefixExplorer, txdApp).ToAppSet()...)
 	}
 
 	if pMap[ProfileMonitoring] {
@@ -193,7 +193,7 @@ func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, coredVer
 
 		appSet = append(appSet, appF.Monitoring(
 			AppPrefixMonitoring,
-			coredNodes,
+			txdNodes,
 			faucetApp,
 			callistoApp,
 			hermesApps,
@@ -209,30 +209,30 @@ func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, coredVer
 	if pMap[ProfileXRPLBridge] {
 		relayers, err := appF.BridgeXRPLRelayers(
 			AppPrefixBridgeXRPL,
-			coredApp,
+			txdApp,
 			xrplApp,
 			3,
 		)
 		if err != nil {
-			return nil, cored.Cored{}, err
+			return nil, txd.TXd{}, err
 		}
 		appSet = append(appSet, relayers...)
 	}
 
-	return appSet, coredApp, nil
+	return appSet, txdApp, nil
 }
 
-func decideNumOfCoredNodes(pMap map[string]bool) (validatorCount, sentryCount, seedCount, fullCount int) {
+func decideNumOfTXdNodes(pMap map[string]bool) (validatorCount, sentryCount, seedCount, fullCount int) {
 	switch {
-	case pMap[Profile1Cored]:
+	case pMap[Profile1TXd]:
 		return 1, 0, 0, 0
-	case pMap[Profile3Cored]:
+	case pMap[Profile3TXd]:
 		return 3, 0, 0, 0
-	case pMap[Profile5Cored]:
+	case pMap[Profile5TXd]:
 		return 5, 0, 0, 0
 	case pMap[ProfileDevNet]:
 		return 3, 1, 1, 2
 	default:
-		panic("no cored profile specified.")
+		panic("no txd profile specified.")
 	}
 }

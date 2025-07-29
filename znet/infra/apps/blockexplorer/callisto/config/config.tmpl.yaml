@@ -1,5 +1,5 @@
 chain:
-  bech32_prefix: {{ .Cored.AddressPrefix }}
+  bech32_prefix: {{ .TXd.AddressPrefix }}
   modules:
     - telemetry
     - addresses
@@ -27,13 +27,13 @@ node:
   config:
     rpc:
       client_name: juno
-      address: http://{{ .Cored.Host }}:{{ .Cored.PortRPC }}
+      address: http://{{ .TXd.Host }}:{{ .TXd.PortRPC }}
       max_connections: 20
     grpc:
-      address: {{ .Cored.Host }}:{{ .Cored.PortGRPC }}
+      address: {{ .TXd.Host }}:{{ .TXd.PortGRPC }}
       insecure: true
     api:
-      address: http://{{ .Cored.Host }}:{{ .Cored.PortAPI }}
+      address: http://{{ .TXd.Host }}:{{ .TXd.PortAPI }}
 parsing:
   workers: 1
   start_height: 1
@@ -41,7 +41,7 @@ parsing:
   listen_new_blocks: true
   parse_old_blocks: true
   parse_genesis: true
-  genesis_file_path: {{ .Cored.GenesisFilePath }}
+  genesis_file_path: {{ .TXd.GenesisFilePath }}
 database:
   url: postgresql://{{ .Postgres.User }}@{{ .Postgres.Host }}:{{ .Postgres.Port }}/{{ .Postgres.DB }}?sslmode=disable&search_path=public
   name: {{ .Postgres.DB }}

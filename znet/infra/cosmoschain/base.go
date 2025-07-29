@@ -108,7 +108,7 @@ func (ba BaseApp) Info() infra.DeploymentInfo {
 	return ba.appConfig.AppInfo.Info()
 }
 
-// ClientContext creates new cored ClientContext.
+// ClientContext creates new txd ClientContext.
 func (ba BaseApp) ClientContext() client.Context {
 	rpcClient, err := cosmosclient.NewClientFromNode(
 		infra.JoinNetAddr("http", ba.Info().HostFromHost, ba.appConfig.Ports.RPC),

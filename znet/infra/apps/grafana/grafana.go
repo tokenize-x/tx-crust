@@ -15,8 +15,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/prometheus"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 )
 
 var (
@@ -45,7 +45,7 @@ type Config struct {
 	HomeDir    string
 	Port       int
 	AppInfo    *infra.AppInfo
-	CoredNodes []cored.Cored
+	TXdNodes   []txd.TXd
 	Prometheus prometheus.Prometheus
 }
 

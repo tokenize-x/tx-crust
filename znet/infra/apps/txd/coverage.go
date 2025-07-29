@@ -1,4 +1,4 @@
-package cored
+package txd
 
 import (
 	"context"
@@ -14,9 +14,9 @@ import (
 
 const covdataDirName = "covdatafiles"
 
-// CoverageConvert converts and stores cored coverage data in text format.
-func CoverageConvert(ctx context.Context, coredHomeDir, dstFilePath string) error {
-	srcCovdataDir := filepath.Join(coredHomeDir, covdataDirName)
+// CoverageConvert converts and stores txd coverage data in text format.
+func CoverageConvert(ctx context.Context, txdHomeDir, dstFilePath string) error {
+	srcCovdataDir := filepath.Join(txdHomeDir, covdataDirName)
 
 	cmd := exec.Go("tool", "covdata", "textfmt", "-i="+srcCovdataDir, "-o="+dstFilePath)
 
@@ -33,6 +33,6 @@ func CoverageConvert(ctx context.Context, coredHomeDir, dstFilePath string) erro
 }
 
 // GoCoverDir returns go coverage data directory inside container.
-func (c Cored) GoCoverDir() string {
+func (c TXd) GoCoverDir() string {
 	return filepath.Join(targets.AppHomeDir, string(c.config.GenesisInitConfig.ChainID), covdataDirName)
 }

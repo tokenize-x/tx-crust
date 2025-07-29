@@ -1,4 +1,4 @@
-package cored
+package txd
 
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -13,7 +13,7 @@ import (
 
 // importMnemonicsToKeyring adds keys to local keystore.
 func importMnemonicsToKeyring(homeDir string, mnemonics map[string]string) error {
-	kr, err := keyring.New("cored", "test", homeDir, nil, config.NewEncodingConfig().Codec)
+	kr, err := keyring.New("txd", "test", homeDir, nil, config.NewEncodingConfig().Codec)
 	if err != nil {
 		return errors.WithStack(err)
 	}

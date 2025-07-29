@@ -1,4 +1,4 @@
-package cored
+package txd
 
 import (
 	"crypto/ed25519"

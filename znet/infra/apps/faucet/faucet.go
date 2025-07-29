@@ -14,7 +14,7 @@ import (
 	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 	"github.com/CoreumFoundation/crust/znet/infra/targets"
 )
 
@@ -36,7 +36,7 @@ type Config struct {
 	AppInfo        *infra.AppInfo
 	Port           int
 	MonitoringPort int
-	Cored          cored.Cored
+	TXd            txd.TXd
 }
 
 // New creates new faucet app.
@@ -76,7 +76,7 @@ func (f Faucet) Config() Config {
 	return f.config
 }
 
-// HealthCheck checks if cored chain is ready to accept transactions.
+// HealthCheck checks if txd chain is ready to accept transactions.
 func (f Faucet) HealthCheck(ctx context.Context) error {
 	if f.config.AppInfo.Info().Status != infra.AppStatusRunning {
 		return retry.Retryable(errors.Errorf("faucet hasn't started yet"))
@@ -100,7 +100,7 @@ func (f Faucet) HealthCheck(ctx context.Context) error {
 	return nil
 }
 
-// Deployment returns deployment of cored.
+// Deployment returns deployment of txd.
 func (f Faucet) Deployment() infra.Deployment {
 	return infra.Deployment{
 		RunAsUser: true,
@@ -117,9 +117,9 @@ func (f Faucet) Deployment() infra.Deployment {
 			return []string{
 				"--address", infra.JoinNetAddrIP("", net.IPv4zero, f.config.Port),
 				"--monitoring-address", infra.JoinNetAddrIP("", net.IPv4zero, f.config.MonitoringPort),
-				"--chain-id", string(f.config.Cored.Config().GenesisInitConfig.ChainID),
+				"--chain-id", string(f.config.TXd.Config().GenesisInitConfig.ChainID),
 				"--key-path-mnemonic", filepath.Join(targets.AppHomeDir, "mnemonic-key"),
-				"--node", infra.JoinNetAddr("", f.config.Cored.Info().HostFromContainer, f.config.Cored.Config().Ports.GRPC),
+				"--node", infra.JoinNetAddr("", f.config.TXd.Info().HostFromContainer, f.config.TXd.Config().Ports.GRPC),
 			}
 		},
 		Ports: map[string]int{
@@ -129,13 +129,13 @@ func (f Faucet) Deployment() infra.Deployment {
 		Requires: infra.Prerequisites{
 			Timeout: 40 * time.Second,
 			Dependencies: []infra.HealthCheckCapable{
-				f.config.Cored,
+				f.config.TXd,
 			},
 		},
 		PrepareFunc: func(ctx context.Context) error {
 			return errors.WithStack(os.WriteFile(
 				filepath.Join(f.config.HomeDir, "mnemonic-key"),
-				[]byte(f.config.Cored.Config().FaucetMnemonic),
+				[]byte(f.config.TXd.Config().FaucetMnemonic),
 				0o400,
 			))
 		},

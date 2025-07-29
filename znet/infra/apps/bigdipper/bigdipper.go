@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/hasura"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 )
 
 const (
@@ -22,7 +22,7 @@ type Config struct {
 	Name    string
 	AppInfo *infra.AppInfo
 	Port    int
-	Cored   cored.Cored
+	TXd     txd.TXd
 	Hasura  hasura.Hasura
 }
 
@@ -90,7 +90,7 @@ func (bd BigDipper) Deployment() infra.Deployment {
 		Requires: infra.Prerequisites{
 			Timeout: 40 * time.Second,
 			Dependencies: []infra.HealthCheckCapable{
-				bd.config.Cored,
+				bd.config.TXd,
 				infra.IsRunning(bd.config.Hasura),
 			},
 		},

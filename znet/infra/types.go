@@ -379,8 +379,8 @@ type ConfigFactory struct {
 	// TimeoutCommit allows to define custom timeout commit for all used chains.
 	TimeoutCommit time.Duration
 
-	// CoredVersion defines the version of the cored to be used on start
-	CoredVersion string
+	// TXdVersion defines the version of the txd to be used on start
+	TXdVersion string
 
 	// HomeDir is the path where all the files are kept
 	HomeDir string
@@ -397,24 +397,24 @@ type ConfigFactory struct {
 	// CoverageOutputFile is the output path for coverage data in text format
 	CoverageOutputFile string
 
-	// CoredUpgrades is the map of cored upgrades to binary names
-	CoredUpgrades map[string]string
+	// TXdUpgrades is the map of txd upgrades to binary names
+	TXdUpgrades map[string]string
 }
 
 // NewConfigFactory creates new ConfigFactory.
 func NewConfigFactory() *ConfigFactory {
 	return &ConfigFactory{
-		CoredUpgrades: make(map[string]string),
+		TXdUpgrades: make(map[string]string),
 	}
 }
 
 // ConfigFactoryOption allows custom options to be provided to ConfigFactory.
 type ConfigFactoryOption = func(*ConfigFactory) *ConfigFactory
 
-// ConfigFactoryWithCoredUpgrades is the option to modify CoredUpgrades.
-func ConfigFactoryWithCoredUpgrades(upgrades map[string]string) ConfigFactoryOption {
+// ConfigFactoryWithTXdUpgrades is the option to modify TXdUpgrades.
+func ConfigFactoryWithTXdUpgrades(upgrades map[string]string) ConfigFactoryOption {
 	return func(inConfig *ConfigFactory) *ConfigFactory {
-		inConfig.CoredUpgrades = upgrades
+		inConfig.TXdUpgrades = upgrades
 		return inConfig
 	}
 }

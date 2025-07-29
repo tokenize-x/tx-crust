@@ -19,7 +19,6 @@ import (
 	"github.com/CoreumFoundation/crust/znet/infra/apps/blockexplorer"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/bridgexrpl"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/callisto"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/faucet"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/gaiad"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/grafana"
@@ -28,6 +27,7 @@ import (
 	"github.com/CoreumFoundation/crust/znet/infra/apps/osmosis"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/postgres"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/prometheus"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/xrpl"
 	"github.com/CoreumFoundation/crust/znet/infra/cosmoschain"
 )
@@ -46,17 +46,17 @@ func NewFactory(config infra.Config, spec *infra.Spec) *Factory {
 	}
 }
 
-// CoredNetwork creates new network of cored nodes.
+// TXdNetwork creates new network of txd nodes.
 //
 //nolint:funlen // breaking down this function will make it less readable.
-func (f *Factory) CoredNetwork(
+func (f *Factory) TXdNetwork(
 	ctx context.Context,
 	namePrefix string,
-	firstPorts cored.Ports,
+	firstPorts txd.Ports,
 	validatorCount, sentryCount, seedCount, fullCount int,
 	binaryVersion string,
 	genDEX bool,
-) (cored.Cored, []cored.Cored, error) {
+) (txd.TXd, []txd.TXd, error) {
 	config := sdk.GetConfig()
 	addressPrefix := constant.AddressPrefixDev
 
@@ -66,7 +66,7 @@ func (f *Factory) CoredNetwork(
 	config.SetBech32PrefixForConsensusNode(addressPrefix+"valcons", addressPrefix+"valconspub")
 	config.SetCoinType(constant.CoinType)
 
-	genesisConfig := cored.GenesisInitConfig{
+	genesisConfig := txd.GenesisInitConfig{
 		ChainID:       constant.ChainIDDev,
 		Denom:         constant.DenomDev,
 		DisplayDenom:  constant.DenomDevDisplay,
@@ -74,19 +74,19 @@ func (f *Factory) CoredNetwork(
 		GenesisTime:   time.Now(),
 		// These values are hardcoded in TestExpeditedGovProposalWithDepositAndWeightedVotes test of coreum.
 		// Remember to update that test if these values are changed
-		GovConfig: cored.GovConfig{
+		GovConfig: txd.GovConfig{
 			MinDeposit:            sdk.NewCoins(sdk.NewInt64Coin(constant.DenomDev, 1000)),
 			ExpeditedMinDeposit:   sdk.NewCoins(sdk.NewInt64Coin(constant.DenomDev, 2000)),
 			VotingPeriod:          20 * time.Second,
 			ExpeditedVotingPeriod: 15 * time.Second,
 		},
-		CustomParamsConfig: cored.CustomParamsConfig{
+		CustomParamsConfig: txd.CustomParamsConfig{
 			MinSelfDelegation: sdkmath.NewInt(10_000_000),
 		},
 		BankBalances: []banktypes.Balance{
 			// Faucet's account
 			{
-				Address: cored.FaucetAddress,
+				Address: txd.FaucetAddress,
 				Coins:   sdk.NewCoins(sdk.NewCoin(constant.DenomDev, sdkmath.NewInt(100_000_000_000_000))),
 			},
 		},
@@ -95,26 +95,26 @@ func (f *Factory) CoredNetwork(
 	// optionally enable DEX generation
 	if genDEX {
 		var err error
-		genesisConfig, err = cored.AddDEXGenesisConfig(ctx, genesisConfig)
+		genesisConfig, err = txd.AddDEXGenesisConfig(ctx, genesisConfig)
 		if err != nil {
-			return cored.Cored{}, nil, err
+			return txd.TXd{}, nil, err
 		}
 	}
 
-	wallet, genesisConfig := cored.NewFundedWallet(genesisConfig)
+	wallet, genesisConfig := txd.NewFundedWallet(genesisConfig)
 
 	if validatorCount > wallet.GetStakersMnemonicsCount() {
-		return cored.Cored{}, nil, errors.Errorf(
+		return txd.TXd{}, nil, errors.Errorf(
 			"unsupported validators count: %d, max: %d",
 			validatorCount,
 			wallet.GetStakersMnemonicsCount(),
 		)
 	}
 
-	nodes := make([]cored.Cored, 0, validatorCount+seedCount+sentryCount+fullCount)
-	valNodes := make([]cored.Cored, 0, validatorCount)
-	seedNodes := make([]cored.Cored, 0, seedCount)
-	var lastNode cored.Cored
+	nodes := make([]txd.TXd, 0, validatorCount+seedCount+sentryCount+fullCount)
+	valNodes := make([]txd.TXd, 0, validatorCount)
+	seedNodes := make([]txd.TXd, 0, seedCount)
+	var lastNode txd.TXd
 	var name string
 	for i := range cap(nodes) {
 		portDelta := i * 100
@@ -124,7 +124,7 @@ func (f *Factory) CoredNetwork(
 		isFull := !isValidator && !isSeed && !isSentry
 
 		name = namePrefix + fmt.Sprintf("-%02d", i)
-		dockerImage := cored.DockerImageStandard
+		dockerImage := txd.DockerImageStandard
 		switch {
 		case isValidator:
 			name += "-val"
@@ -136,15 +136,15 @@ func (f *Factory) CoredNetwork(
 			name += "-full"
 		}
 
-		node := cored.New(cored.Config{
+		node := txd.New(txd.Config{
 			Name:              name,
 			HomeDir:           filepath.Join(f.config.AppDir, name, string(genesisConfig.ChainID)),
 			BinDir:            filepath.Join(f.config.RootDir, "bin"),
 			WrapperDir:        f.config.WrapperDir,
 			DockerImage:       dockerImage,
 			GenesisInitConfig: &genesisConfig,
-			AppInfo:           f.spec.DescribeApp(cored.AppType, name),
-			Ports: cored.Ports{
+			AppInfo:           f.spec.DescribeApp(txd.AppType, name),
+			Ports: txd.Ports{
 				RPC:        firstPorts.RPC + portDelta,
 				P2P:        firstPorts.P2P + portDelta,
 				GRPC:       firstPorts.GRPC + portDelta,
@@ -161,14 +161,14 @@ func (f *Factory) CoredNetwork(
 				return ""
 			}(),
 			StakerBalance: wallet.GetStakerMnemonicsBalance(),
-			ValidatorNodes: func() []cored.Cored {
+			ValidatorNodes: func() []txd.TXd {
 				if isSentry || sentryCount == 0 {
 					return valNodes
 				}
 
 				return nil
 			}(),
-			SeedNodes: func() []cored.Cored {
+			SeedNodes: func() []txd.TXd {
 				if isSentry || isFull {
 					return seedNodes
 				}
@@ -176,17 +176,17 @@ func (f *Factory) CoredNetwork(
 				return nil
 			}(),
 			ImportedMnemonics: map[string]string{
-				"alice":      cored.AliceMnemonic,
-				"bob":        cored.BobMnemonic,
-				"charlie":    cored.CharlieMnemonic,
+				"alice":      txd.AliceMnemonic,
+				"bob":        txd.BobMnemonic,
+				"charlie":    txd.CharlieMnemonic,
 				"xrplbridge": bridgexrpl.CoreumAdminMnemonic,
 			},
-			FundingMnemonic: cored.FundingMnemonic,
-			FaucetMnemonic:  cored.FaucetMnemonic,
-			GasPriceStr:     cored.DefaultGasPriceStr,
+			FundingMnemonic: txd.FundingMnemonic,
+			FaucetMnemonic:  txd.FaucetMnemonic,
+			GasPriceStr:     txd.DefaultGasPriceStr,
 			BinaryVersion:   binaryVersion,
 			TimeoutCommit:   f.spec.TimeoutCommit,
-			Upgrades:        f.config.CoredUpgrades,
+			Upgrades:        f.config.TXdUpgrades,
 		})
 		if isValidator {
 			valNodes = append(valNodes, node)
@@ -201,19 +201,19 @@ func (f *Factory) CoredNetwork(
 }
 
 // Faucet creates new faucet.
-func (f *Factory) Faucet(name string, coredApp cored.Cored) faucet.Faucet {
+func (f *Factory) Faucet(name string, txdApp txd.TXd) faucet.Faucet {
 	return faucet.New(faucet.Config{
 		Name:           name,
 		HomeDir:        filepath.Join(f.config.AppDir, name),
 		AppInfo:        f.spec.DescribeApp(faucet.AppType, name),
 		Port:           faucet.DefaultPort,
 		MonitoringPort: faucet.DefaultMonitoringPort,
-		Cored:          coredApp,
+		TXd:            txdApp,
 	})
 }
 
 // BlockExplorer returns set of applications required to run block explorer.
-func (f *Factory) BlockExplorer(prefix string, coredApp cored.Cored) blockexplorer.Explorer {
+func (f *Factory) BlockExplorer(prefix string, txdApp txd.TXd) blockexplorer.Explorer {
 	namePostgres := BuildPrefixedAppName(prefix, string(postgres.AppType))
 	nameHasura := BuildPrefixedAppName(prefix, string(hasura.AppType))
 	nameCallisto := BuildPrefixedAppName(prefix, string(callisto.AppType))
@@ -232,7 +232,7 @@ func (f *Factory) BlockExplorer(prefix string, coredApp cored.Cored) blockexplor
 		Port:            blockexplorer.DefaultPorts.Callisto,
 		TelemetryPort:   blockexplorer.DefaultPorts.CallistoTelemetry,
 		ConfigTemplate:  blockexplorer.CallistoConfigTemplate,
-		Cored:           coredApp,
+		TXd:             txdApp,
 		Postgres:        postgresApp,
 		ContractAddress: blockexplorer.DefaultContractAddress,
 	})
@@ -247,7 +247,7 @@ func (f *Factory) BlockExplorer(prefix string, coredApp cored.Cored) blockexplor
 		Name:    nameBigDipper,
 		AppInfo: f.spec.DescribeApp(bigdipper.AppType, nameBigDipper),
 		Port:    blockexplorer.DefaultPorts.BigDipper,
-		Cored:   coredApp,
+		TXd:     txdApp,
 		Hasura:  hasuraApp,
 	})
 
@@ -260,7 +260,7 @@ func (f *Factory) BlockExplorer(prefix string, coredApp cored.Cored) blockexplor
 }
 
 // IBC creates set of applications required to test IBC.
-func (f *Factory) IBC(prefix string, coredApp cored.Cored) infra.AppSet {
+func (f *Factory) IBC(prefix string, txdApp txd.TXd) infra.AppSet {
 	nameGaia := BuildPrefixedAppName(prefix, string(gaiad.AppType))
 	nameOsmosis := BuildPrefixedAppName(prefix, string(osmosis.AppType))
 	nameRelayerHermes := BuildPrefixedAppName(prefix, string(hermes.AppType))
@@ -300,8 +300,8 @@ func (f *Factory) IBC(prefix string, coredApp cored.Cored) infra.AppSet {
 		HomeDir:               filepath.Join(f.config.AppDir, nameRelayerHermes),
 		AppInfo:               f.spec.DescribeApp(hermes.AppType, nameRelayerHermes),
 		TelemetryPort:         hermes.DefaultTelemetryPort,
-		Cored:                 coredApp,
-		CoreumRelayerMnemonic: cored.RelayerMnemonic,
+		TXd:                   txdApp,
+		CoreumRelayerMnemonic: txd.RelayerMnemonic,
 		PeeredChains:          []cosmoschain.BaseApp{gaiaApp, osmosisApp},
 	})
 
@@ -315,7 +315,7 @@ func (f *Factory) IBC(prefix string, coredApp cored.Cored) infra.AppSet {
 // Monitoring returns set of applications required to run monitoring.
 func (f *Factory) Monitoring(
 	prefix string,
-	coredNodes []cored.Cored,
+	txdNodes []txd.TXd,
 	faucet faucet.Faucet,
 	callisto callisto.Callisto,
 	hermesApps []hermes.Hermes,
@@ -328,7 +328,7 @@ func (f *Factory) Monitoring(
 		HomeDir:    filepath.Join(f.config.AppDir, namePrometheus),
 		Port:       prometheus.DefaultPort,
 		AppInfo:    f.spec.DescribeApp(prometheus.AppType, namePrometheus),
-		CoredNodes: coredNodes,
+		TXdNodes:   txdNodes,
 		Faucet:     faucet,
 		Callisto:   callisto,
 		HermesApps: hermesApps,
@@ -338,7 +338,7 @@ func (f *Factory) Monitoring(
 		Name:       nameGrafana,
 		HomeDir:    filepath.Join(f.config.AppDir, nameGrafana),
 		AppInfo:    f.spec.DescribeApp(grafana.AppType, nameGrafana),
-		CoredNodes: coredNodes,
+		TXdNodes:   txdNodes,
 		Port:       grafana.DefaultPort,
 		Prometheus: prometheusApp,
 	})
@@ -366,7 +366,7 @@ func (f *Factory) XRPL(prefix string) xrpl.XRPL {
 // BridgeXRPLRelayers returns a set of XRPL relayer apps.
 func (f *Factory) BridgeXRPLRelayers(
 	prefix string,
-	coredApp cored.Cored,
+	txdApp txd.TXd,
 	xrplApp xrpl.XRPL,
 	relayerCount int,
 ) (infra.AppSet, error) {
@@ -393,7 +393,7 @@ func (f *Factory) BridgeXRPLRelayers(
 			AppInfo:   f.spec.DescribeApp(bridgexrpl.AppType, name),
 			Ports:     ports,
 			Leader:    leader,
-			Cored:     coredApp,
+			TXd:       txdApp,
 			XRPL:      xrplApp,
 		})
 		ports.Metrics++

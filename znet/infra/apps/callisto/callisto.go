@@ -21,8 +21,8 @@ import (
 	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/postgres"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 	"github.com/CoreumFoundation/crust/znet/infra/targets"
 )
 
@@ -54,7 +54,7 @@ type Config struct {
 	Port            int
 	TelemetryPort   int
 	ConfigTemplate  string
-	Cored           cored.Cored
+	TXd             txd.TXd
 	Postgres        postgres.Postgres
 	ContractAddress string
 }
@@ -115,7 +115,7 @@ func (j Callisto) Deployment() infra.Deployment {
 		Requires: infra.Prerequisites{
 			Timeout: 40 * time.Second,
 			Dependencies: []infra.HealthCheckCapable{
-				j.config.Cored,
+				j.config.TXd,
 				j.config.Postgres,
 			},
 		},
@@ -156,8 +156,8 @@ func (j Callisto) HealthCheck(ctx context.Context) error {
 func (j Callisto) prepareConfig() []byte {
 	configBuf := &bytes.Buffer{}
 	must.OK(template.Must(template.New("config").Parse(j.config.ConfigTemplate)).Execute(configBuf, struct {
-		Port  int
-		Cored struct {
+		Port int
+		TXd  struct {
 			Host            string
 			PortRPC         int
 			PortGRPC        int
@@ -174,7 +174,7 @@ func (j Callisto) prepareConfig() []byte {
 		ContractAddress string
 	}{
 		Port: j.config.Port,
-		Cored: struct {
+		TXd: struct {
 			Host            string
 			PortRPC         int
 			PortGRPC        int
@@ -182,10 +182,10 @@ func (j Callisto) prepareConfig() []byte {
 			AddressPrefix   string
 			GenesisFilePath string
 		}{
-			Host:            j.config.Cored.Info().HostFromContainer,
-			PortRPC:         j.config.Cored.Config().Ports.RPC,
-			PortGRPC:        j.config.Cored.Config().Ports.GRPC,
-			PortAPI:         j.config.Cored.Config().Ports.API,
+			Host:            j.config.TXd.Info().HostFromContainer,
+			PortRPC:         j.config.TXd.Config().Ports.RPC,
+			PortGRPC:        j.config.TXd.Config().Ports.GRPC,
+			PortAPI:         j.config.TXd.Config().Ports.API,
 			AddressPrefix:   sdk.GetConfig().GetBech32AccountAddrPrefix(),
 			GenesisFilePath: targets.AppHomeDir + "/config/genesis.json",
 		},
@@ -206,7 +206,7 @@ func (j Callisto) prepareConfig() []byte {
 }
 
 func (j Callisto) prepare(ctx context.Context) error {
-	if err := j.config.Cored.SaveGenesis(ctx, j.config.HomeDir); err != nil {
+	if err := j.config.TXd.SaveGenesis(ctx, j.config.HomeDir); err != nil {
 		return err
 	}
 

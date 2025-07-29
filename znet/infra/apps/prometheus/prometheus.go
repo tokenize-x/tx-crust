@@ -18,9 +18,9 @@ import (
 	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	"github.com/CoreumFoundation/crust/znet/infra"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/callisto"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/faucet"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/hermes"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 )
 
 var (
@@ -50,7 +50,7 @@ type Config struct {
 	HomeDir    string
 	Port       int
 	AppInfo    *infra.AppInfo
-	CoredNodes []cored.Cored
+	TXdNodes   []txd.TXd
 	Faucet     faucet.Faucet
 	Callisto   callisto.Callisto
 	HermesApps []hermes.Hermes
@@ -135,8 +135,8 @@ func (p Prometheus) Deployment() infra.Deployment {
 		Requires: infra.Prerequisites{
 			Timeout: time.Minute, // relayers are slow
 			Dependencies: func() []infra.HealthCheckCapable {
-				containers := make([]infra.HealthCheckCapable, 0, len(p.config.CoredNodes))
-				for _, node := range p.config.CoredNodes {
+				containers := make([]infra.HealthCheckCapable, 0, len(p.config.TXdNodes))
+				for _, node := range p.config.TXdNodes {
 					containers = append(containers, node)
 				}
 				// determine whether the callisto is provided
@@ -178,8 +178,8 @@ func (p Prometheus) saveConfigFile(_ context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	nodesConfig := make([]nodesConfigArgs, 0, len(p.config.CoredNodes))
-	for _, node := range p.config.CoredNodes {
+	nodesConfig := make([]nodesConfigArgs, 0, len(p.config.TXdNodes))
+	for _, node := range p.config.TXdNodes {
 		nodesConfig = append(nodesConfig, nodesConfigArgs{
 			Host: node.Info().HostFromContainer,
 			Port: node.Config().Ports.Prometheus,
@@ -230,8 +230,8 @@ func (p Prometheus) saveConfigFile(_ context.Context) error {
 	}
 
 	chainID := ""
-	if len(p.config.CoredNodes) > 0 {
-		chainID = string(p.config.CoredNodes[0].Config().GenesisInitConfig.ChainID)
+	if len(p.config.TXdNodes) > 0 {
+		chainID = string(p.config.TXdNodes[0].Config().GenesisInitConfig.ChainID)
 	}
 	rulesArgs := struct {
 		ChainID string

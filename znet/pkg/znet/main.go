@@ -61,7 +61,7 @@ func rootCmd(ctx context.Context, configF *infra.ConfigFactory, cmdF *CmdFactory
 	)
 	addRootDirFlag(rootCmd, configF)
 	addProfileFlag(rootCmd, configF)
-	addCoredVersionFlag(rootCmd, configF)
+	addTXdVersionFlag(rootCmd, configF)
 	return rootCmd
 }
 
@@ -75,7 +75,7 @@ func startCmd(ctx context.Context, configF *infra.ConfigFactory, cmdF *CmdFactor
 	}
 	addRootDirFlag(startCmd, configF)
 	addProfileFlag(startCmd, configF)
-	addCoredVersionFlag(startCmd, configF)
+	addTXdVersionFlag(startCmd, configF)
 	addTimeoutCommitFlag(startCmd, configF)
 
 	return startCmd
@@ -152,11 +152,11 @@ func addTimeoutCommitFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
 	cmd.Flags().DurationVar(&configF.TimeoutCommit, "timeout-commit", defaultTimeoutCommit, "Chains timeout commit.")
 }
 
-func addCoredVersionFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
+func addTXdVersionFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
 	cmd.Flags().StringVar(
-		&configF.CoredVersion,
-		"cored-version",
-		defaultString("CRUST_ZNET_CORED_VERSION", ""),
+		&configF.TXdVersion,
+		"txd-version",
+		defaultString("CRUST_ZNET_TXD_VERSION", ""),
 		"The version of the binary to be used for deployment",
 	)
 }

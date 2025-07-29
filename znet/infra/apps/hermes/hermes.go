@@ -21,7 +21,7 @@ import (
 	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	coreumconstant "github.com/CoreumFoundation/coreum/v6/pkg/config/constant"
 	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 	"github.com/CoreumFoundation/crust/znet/infra/cosmoschain"
 	"github.com/CoreumFoundation/crust/znet/infra/targets"
 )
@@ -52,7 +52,7 @@ type Config struct {
 	HomeDir               string
 	AppInfo               *infra.AppInfo
 	TelemetryPort         int
-	Cored                 cored.Cored
+	TXd                   txd.TXd
 	CoreumRelayerMnemonic string
 	PeeredChains          []cosmoschain.BaseApp
 }
@@ -124,7 +124,7 @@ func (h Hermes) HealthCheck(ctx context.Context) error {
 	}
 
 	chainIDs := map[string]struct{}{
-		string(h.config.Cored.Config().GenesisInitConfig.ChainID): {},
+		string(h.config.TXd.Config().GenesisInitConfig.ChainID): {},
 	}
 	for _, chain := range h.config.PeeredChains {
 		chainIDs[chain.AppConfig().ChainID] = struct{}{}
@@ -150,7 +150,7 @@ func (h Hermes) HealthCheck(ctx context.Context) error {
 // Deployment returns deployment of hermes.
 func (h Hermes) Deployment() infra.Deployment {
 	dependencies := []infra.HealthCheckCapable{
-		h.config.Cored,
+		h.config.TXd,
 	}
 	for _, chain := range h.config.PeeredChains {
 		dependencies = append(dependencies, chain)
@@ -210,15 +210,15 @@ func (h Hermes) saveConfigFile() error {
 		TelemetryPort: h.config.TelemetryPort,
 		Chains: []chainConfig{
 			{
-				ChanID: string(h.config.Cored.Config().GenesisInitConfig.ChainID),
-				RPCURL: infra.JoinNetAddr("http", h.config.Cored.Info().HostFromContainer, h.config.Cored.Config().Ports.RPC),
+				ChanID: string(h.config.TXd.Config().GenesisInitConfig.ChainID),
+				RPCURL: infra.JoinNetAddr("http", h.config.TXd.Info().HostFromContainer, h.config.TXd.Config().Ports.RPC),
 				GRPCURL: infra.JoinNetAddr(
 					"http",
-					h.config.Cored.Info().HostFromContainer,
-					h.config.Cored.Config().Ports.GRPC,
+					h.config.TXd.Info().HostFromContainer,
+					h.config.TXd.Config().Ports.GRPC,
 				),
-				AccountPrefix: h.config.Cored.Config().GenesisInitConfig.AddressPrefix,
-				GasPrice:      lo.Must1(sdk.ParseDecCoin(h.config.Cored.Config().GasPriceStr)),
+				AccountPrefix: h.config.TXd.Config().GenesisInitConfig.AddressPrefix,
+				GasPrice:      lo.Must1(sdk.ParseDecCoin(h.config.TXd.Config().GasPriceStr)),
 			},
 		},
 	}
@@ -286,12 +286,12 @@ func (h Hermes) saveRunScriptFile() error {
 	}{
 		HomePath: targets.AppHomeDir,
 
-		CoreumChanID:          string(h.config.Cored.Config().GenesisInitConfig.ChainID),
+		CoreumChanID:          string(h.config.TXd.Config().GenesisInitConfig.ChainID),
 		CoreumRelayerMnemonic: h.config.CoreumRelayerMnemonic,
 		CoreumRPCURL: infra.JoinNetAddr(
 			"http",
-			h.config.Cored.Info().HostFromContainer,
-			h.config.Cored.Config().Ports.RPC,
+			h.config.TXd.Info().HostFromContainer,
+			h.config.TXd.Config().Ports.RPC,
 		),
 		CoreumRelayerCoinType: coreumconstant.CoinType,
 

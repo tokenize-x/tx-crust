@@ -20,7 +20,7 @@ import (
 	"github.com/CoreumFoundation/coreum/v6/pkg/config/constant"
 	"github.com/CoreumFoundation/crust/znet/infra"
 	"github.com/CoreumFoundation/crust/znet/infra/apps"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 	"github.com/CoreumFoundation/crust/znet/infra/targets"
 )
 
@@ -60,7 +60,7 @@ func Activate(ctx context.Context, configF *infra.ConfigFactory) error {
 		"PATH="+config.WrapperDir+":"+os.Getenv("PATH"),
 		"CRUST_ZNET_ENV="+configF.EnvName,
 		"CRUST_ZNET_PROFILES="+strings.Join(configF.Profiles, ","),
-		"CRUST_ZNET_CORED_VERSION="+configF.CoredVersion,
+		"CRUST_ZNET_TXD_VERSION="+configF.TXdVersion,
 		"CRUST_ZNET_HOME="+configF.HomeDir,
 		"CRUST_ZNET_ROOT_DIR="+configF.RootDir,
 	)
@@ -121,7 +121,7 @@ func Start(ctx context.Context, configF *infra.ConfigFactory) error {
 	target := targets.NewDocker(config, spec)
 	appF := apps.NewFactory(config, spec)
 
-	appSet, _, err := apps.BuildAppSet(ctx, appF, config.Profiles, config.CoredVersion)
+	appSet, _, err := apps.BuildAppSet(ctx, appF, config.Profiles, config.TXdVersion)
 	if err != nil {
 		return err
 	}
@@ -179,13 +179,13 @@ func Spec(spec *infra.Spec) error {
 	return nil
 }
 
-// CoverageConvert converts & stores coverage from the first cored app we find.
+// CoverageConvert converts and stores coverage from the first txd app we find.
 func CoverageConvert(ctx context.Context, configF *infra.ConfigFactory) error {
 	spec := infra.NewSpec(configF)
 	config := NewConfig(configF, spec)
 
 	for appName, app := range spec.Apps {
-		if app.Type() != cored.AppType {
+		if app.Type() != txd.AppType {
 			continue
 		}
 
@@ -198,14 +198,14 @@ func CoverageConvert(ctx context.Context, configF *infra.ConfigFactory) error {
 			return errors.Wrapf(err, "failed to create coverage dir `%s`", dstCoverageDir)
 		}
 
-		coredAppHome := filepath.Join(config.AppDir, appName, string(constant.ChainIDDev))
+		txdAppHome := filepath.Join(config.AppDir, appName, string(constant.ChainIDDev))
 
-		// We convert coverage from the first cored app we find since codecove results for all of them are identical
+		// We convert coverage from the first txd app we find since codecove results for all of them are identical
 		// because of consensus.
-		return cored.CoverageConvert(ctx, coredAppHome, config.CoverageOutputFile)
+		return txd.CoverageConvert(ctx, txdAppHome, config.CoverageOutputFile)
 	}
 
-	return errors.Errorf("no %s app found", cored.AppType)
+	return errors.Errorf("no %s app found", txd.AppType)
 }
 
 func saveWrapper(dir, file, command string) {

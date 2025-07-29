@@ -13,8 +13,8 @@ type Config struct {
 	// TimeoutCommit allows to define custom timeout commit for all used chains.
 	TimeoutCommit time.Duration
 
-	// CoredVersion defines the version of the cored to be used on start
-	CoredVersion string
+	// TXdVersion defines the version of the txd to be used on start
+	TXdVersion string
 
 	// HomeDir is the path where all the files are kept
 	HomeDir string
@@ -37,6 +37,6 @@ type Config struct {
 	// CoverageOutputFile is the output path for coverage data in text format
 	CoverageOutputFile string
 
-	// CoredUpgrades is the map of cored upgrades to binary names
-	CoredUpgrades map[string]string
+	// TXdUpgrades is the map of txd upgrades to binary names
+	TXdUpgrades map[string]string
 }

@@ -53,11 +53,11 @@ $COREUM_PATH/callisto/bin/callisto-builder build images
 After the command `coreum-builder build images` completes the symbolic links should be created to the crust `bin` and `.cache` directory using the following commands.
 
 ```sh
-ln -s $COREUM_PATH/coreum/bin/.cache/cored $COREUM_PATH/crust/bin/.cache/
+ln -s $COREUM_PATH/coreum/bin/.cache/txd $COREUM_PATH/crust/bin/.cache/
 ```
 
 ```sh
-ln -s $COREUM_PATH/coreum/bin/cored $COREUM_PATH/crust/bin/cored
+ln -s $COREUM_PATH/coreum/bin/txd $COREUM_PATH/crust/bin/txd
 ```
 
 _Note: You need to run respective builder `build images` after you modify that project.
@@ -102,9 +102,9 @@ Each environment is independent, you may create many of them and work with them 
 
 Defines the list of available application profiles to run. Available profiles:
 
-- `1cored` - runs one cored validator (default one)
-- `3cored` - runs three cored validators
-- `5cored` - runs five cored validators
+- `1txd` - runs one txd validator (default one)
+- `3txd` - runs three txd validators
+- `5txd` - runs five txd validators
 - `devnet` - runs environment similar to our devnet - 3 validators, 1 sentry node, 1 seed node, 2 full nodes
 - `faucet` - runs faucet
 - `explorer` - runs block explorer
@@ -112,24 +112,24 @@ Defines the list of available application profiles to run. Available profiles:
 - `integration-tests-ibc` - runs setup required by IBC integration tests
 - `integration-tests-modules` - runs setup required by modules integration tests
 
-NOTE: `1cored`, `3cored`, `5cored` and `devnet` are mutually exclusive.
+NOTE: `1txd`, `3txd`, `5txd` and `devnet` are mutually exclusive.
 
 To start fully-featured set you may run:
 
 ```
-$ crust znet start --profiles=3cored,faucet,explorer,monitoring
+$ crust znet start --profiles=3txd,faucet,explorer,monitoring
 ```
 
 **NOTE**: Notice from here on out, if you already have a znet env started with a set profiles,
 and you want to start znet with a different set of profiles, you need to remove previous znet env
 with `crust znet remove` and only then you can start the new env.
 
-### --cored-version
+### --txd-version
 
-The `--cored-version` allows to start the `znet` with any previously released version.
+The `--txd-version` allows to start the `znet` with any previously released version.
 
 ```
-$ crust znet start --cored-version=v1.0.0 --profiles=3cored,faucet,explorer,monitoring
+$ crust znet start --txd-version=v1.0.0 --profiles=3txd,faucet,explorer,monitoring
 ```
 
 **NOTE**: if you already have a znet env started with different profiles, you need to remove it
@@ -138,7 +138,7 @@ with `crust znet remove` so you can start a new environment.
 Also, it's possible to execute tests with any previously released version.
 
 ```
-$ crust znet test --cored-version=v1.0.0 --test-groups=coreum-upgrade
+$ crust znet test --txd-version=v1.0.0 --test-groups=coreum-upgrade
 ```
 
 ## Commands
@@ -193,17 +193,17 @@ $ crust znet
 it is possible to use `logs` wrapper to tail logs from an application:
 
 ```
-(znet) [znet] $ logs cored-00-val
+(znet) [znet] $ logs txd-00-val
 ```
 
 ## Playing with the blockchain manually
 
-For each `cored` instance started by `znet` wrapper script named after the name of the node is created, so you may call
+For each `txd` instance started by `znet` wrapper script named after the name of the node is created, so you may call
 the client manually.
 There are also three standard keys: `alice`, `bob` and `charlie` added to the keystore of each instance.
 
-If you start `znet` using default `--profiles=1cored` there is one `cored` application called `cored-00-val`.
-To use the client you may use `cored-00-val` wrapper:
+If you start `znet` using default `--profiles=1txd` there is one `txd` application called `txd-00-val`.
+To use the client you may use `txd-00-val` wrapper:
 
 ```
 (znet) [znet] $ start
@@ -212,15 +212,15 @@ To use the client you may use `cored-00-val` wrapper:
 Generate a wallet to transfer funds to
 
 ```
-(znet) [znet] $ cored-00-val keys add {YOUR_WALLET_NAME}
+(znet) [znet] $ txd-00-val keys add {YOUR_WALLET_NAME}
 ```
 
 Take the address the out put of the command above, you will use it in the next commands.
 
 ```
-(znet) [znet] $ cored-00-val query bank balances {YOUR_GENERATED_ADDRESS}
-(znet) [znet] $ cored-00-val tx bank send bob {YOUR_GENERATED_ADDRESS} 10udevcore
-(znet) [znet] $ cored-00-val query bank balances {YOUR_GENERATED_ADDRESS}
+(znet) [znet] $ txd-00-val query bank balances {YOUR_GENERATED_ADDRESS}
+(znet) [znet] $ txd-00-val tx bank send bob {YOUR_GENERATED_ADDRESS} 10udevcore
+(znet) [znet] $ txd-00-val query bank balances {YOUR_GENERATED_ADDRESS}
 ```
 
 ## Integration tests

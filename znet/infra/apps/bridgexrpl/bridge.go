@@ -35,13 +35,13 @@ import (
 	"github.com/CoreumFoundation/crust/znet/infra"
 	coreumhelper "github.com/CoreumFoundation/crust/znet/infra/apps/bridgexrpl/coreum"
 	xrplhelper "github.com/CoreumFoundation/crust/znet/infra/apps/bridgexrpl/xrpl"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/cored"
+	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
 	"github.com/CoreumFoundation/crust/znet/infra/apps/xrpl"
 	"github.com/CoreumFoundation/crust/znet/infra/targets"
 )
 
 const (
-	// AppType is the type of cored application.
+	// AppType is the type of txd application.
 	AppType infra.AppType = "bridgexrpl"
 
 	numberOfTickets      = 250
@@ -52,7 +52,7 @@ const (
 //go:embed relayer.tmpl.yaml
 var configTmpl string
 
-// Config stores cored app config.
+// Config stores txd app config.
 type Config struct {
 	Name         string
 	HomeDir      string
@@ -62,11 +62,11 @@ type Config struct {
 	AppInfo      *infra.AppInfo
 	Ports        Ports
 	Leader       *Bridge
-	Cored        cored.Cored
+	TXd          txd.TXd
 	XRPL         xrpl.XRPL
 }
 
-// New creates new cored app.
+// New creates new txd app.
 func New(cfg Config) Bridge {
 	return Bridge{
 		config:       cfg,
@@ -95,7 +95,7 @@ func (b Bridge) Info() infra.DeploymentInfo {
 	return b.config.AppInfo.Info()
 }
 
-// Config returns cored config.
+// Config returns txd config.
 func (b Bridge) Config() Config {
 	return b.config
 }
@@ -123,7 +123,7 @@ func (b Bridge) HealthCheck(ctx context.Context) error {
 		QueryData: queryTicketsPayload,
 	}
 
-	wasmClient := wasmtypes.NewQueryClient(b.config.Cored.ClientContext())
+	wasmClient := wasmtypes.NewQueryClient(b.config.TXd.ClientContext())
 
 	resp, err := wasmClient.SmartContractState(ctx, query)
 	if err != nil {
@@ -168,7 +168,7 @@ func (b Bridge) Deployment() infra.Deployment {
 			Timeout: 20 * time.Second,
 			Dependencies: []infra.HealthCheckCapable{
 				b.config.XRPL,
-				b.config.Cored,
+				b.config.TXd,
 			},
 		},
 	}
@@ -306,11 +306,11 @@ func (b Bridge) deployAndInitSmartContract(ctx context.Context, rpcClient *xrplh
 		return err
 	}
 
-	clientCtx := b.config.Cored.ClientContext().
+	clientCtx := b.config.TXd.ClientContext().
 		WithBroadcastMode(flags.BroadcastSync).
 		WithAwaitTx(true)
 	clientCtx = clientCtx.WithKeyring(keyring.NewInMemory(clientCtx.Codec()))
-	txf := b.config.Cored.TxFactory(clientCtx).
+	txf := b.config.TXd.TxFactory(clientCtx).
 		WithSimulateAndExecute(true).
 		WithGasAdjustment(1.5)
 
@@ -501,8 +501,8 @@ func (b Bridge) saveConfig() error {
 	}{
 		XRPLRPCURL: infra.JoinNetAddr("http", b.config.XRPL.Info().HostFromContainer,
 			b.config.XRPL.Config().RPCPort),
-		CoreumGRPCURL: infra.JoinNetAddr("http", b.config.Cored.Info().HostFromContainer,
-			b.config.Cored.Config().Ports.GRPC),
+		CoreumGRPCURL: infra.JoinNetAddr("http", b.config.TXd.Info().HostFromContainer,
+			b.config.TXd.Config().Ports.GRPC),
 		CoreumContractAddress: *b.contractAddr,
 		MetricsPort:           b.Config().Ports.Metrics,
 	}))
@@ -579,20 +579,20 @@ func fundXRPLAccounts(ctx context.Context, rpcClient *xrplhelper.RPCClient) erro
 }
 
 func (b Bridge) fundCoreumAccounts(ctx context.Context) error {
-	coredConfig := b.config.Cored.Config()
+	txdConfig := b.config.TXd.Config()
 
-	clientCtx := b.config.Cored.ClientContext().
+	clientCtx := b.config.TXd.ClientContext().
 		WithBroadcastMode(flags.BroadcastSync).
 		WithAwaitTx(true)
 	clientCtx = clientCtx.WithKeyring(keyring.NewInMemory(clientCtx.Codec()))
-	txf := b.config.Cored.TxFactory(clientCtx).
+	txf := b.config.TXd.TxFactory(clientCtx).
 		WithSimulateAndExecute(true)
 
 	// TODO: Once we have more services requiring funds we will have to create dedicated faucet (by sharing code from
 	// integration tests) to avoid problems with parallel tx creation and conflicting sequence numbers.
 	faucetKeyInfo, err := clientCtx.Keyring().NewAccount(
 		uuid.New().String(),
-		coredConfig.FaucetMnemonic,
+		txdConfig.FaucetMnemonic,
 		"",
 		hd.CreateHDPath(constant.CoinType, 0, 0).String(),
 		hd.Secp256k1,
@@ -617,7 +617,7 @@ func (b Bridge) fundCoreumAccounts(ctx context.Context) error {
 		Inputs: []banktypes.Input{
 			{
 				Address: faucetAddr.String(),
-				Coins: sdk.NewCoins(sdk.NewCoin(coredConfig.GenesisInitConfig.Denom,
+				Coins: sdk.NewCoins(sdk.NewCoin(txdConfig.GenesisInitConfig.Denom,
 					sdkmath.NewInt(coreumAdminBalance).Add(
 						sdkmath.NewInt(coreumRelayerBalance).MulRaw(int64(len(RelayerMnemonics))),
 					),
@@ -627,7 +627,7 @@ func (b Bridge) fundCoreumAccounts(ctx context.Context) error {
 		Outputs: []banktypes.Output{
 			{
 				Address: adminCoreumAccount.String(),
-				Coins:   sdk.NewCoins(sdk.NewInt64Coin(coredConfig.GenesisInitConfig.Denom, coreumAdminBalance)),
+				Coins:   sdk.NewCoins(sdk.NewInt64Coin(txdConfig.GenesisInitConfig.Denom, coreumAdminBalance)),
 			},
 		},
 	}
@@ -638,7 +638,7 @@ func (b Bridge) fundCoreumAccounts(ctx context.Context) error {
 		}
 		sendMsg.Outputs = append(sendMsg.Outputs, banktypes.Output{
 			Address: relayerAccount.String(),
-			Coins:   sdk.NewCoins(sdk.NewInt64Coin(coredConfig.GenesisInitConfig.Denom, coreumRelayerBalance)),
+			Coins:   sdk.NewCoins(sdk.NewInt64Coin(txdConfig.GenesisInitConfig.Denom, coreumRelayerBalance)),
 		})
 	}
 

@@ -1,4 +1,4 @@
-package cored
+package txd
 
 import (
 	"context"
@@ -49,11 +49,11 @@ import (
 )
 
 const (
-	// AppType is the type of cored application.
-	AppType infra.AppType = "cored"
+	// AppType is the type of txd application.
+	AppType infra.AppType = "txd"
 
-	// DockerImageStandard uses standard docker image of cored.
-	DockerImageStandard = "cored:znet"
+	// DockerImageStandard uses standard docker image of txd.
+	DockerImageStandard = "txd:znet"
 )
 
 var basicModuleList = []module.AppModuleBasic{
@@ -62,7 +62,7 @@ var basicModuleList = []module.AppModuleBasic{
 	staking.AppModuleBasic{},
 }
 
-// Config stores cored app config.
+// Config stores txd app config.
 type Config struct {
 	Name              string
 	HomeDir           string
@@ -78,8 +78,8 @@ type Config struct {
 	FundingMnemonic   string
 	FaucetMnemonic    string
 	GasPriceStr       string
-	ValidatorNodes    []Cored
-	SeedNodes         []Cored
+	ValidatorNodes    []TXd
+	SeedNodes         []TXd
 	ImportedMnemonics map[string]string
 	BinaryVersion     string
 	TimeoutCommit     time.Duration
@@ -93,7 +93,7 @@ type GenesisDEXConfig struct {
 	MaxOrdersPerDenom uint64 `json:"max_orders_per_denom"`
 }
 
-// GenesisInitConfig is used to pass parameters for genesis creation to cored binary.
+// GenesisInitConfig is used to pass parameters for genesis creation to txd binary.
 //
 //nolint:tagliatelle
 type GenesisInitConfig struct {
@@ -136,8 +136,8 @@ type GenesisValidator struct {
 	ValidatorName     string                `json:"validator_name"`
 }
 
-// New creates new cored app.
-func New(cfg Config) Cored {
+// New creates new txd app.
+func New(cfg Config) TXd {
 	nodePublicKey, nodePrivateKey, err := ed25519.GenerateKey(rand.Reader)
 	must.OK(err)
 
@@ -150,7 +150,7 @@ func New(cfg Config) Cored {
 		})
 	}
 
-	return Cored{
+	return TXd{
 		config:              cfg,
 		nodeID:              NodeID(nodePublicKey),
 		nodePrivateKey:      nodePrivateKey,
@@ -160,8 +160,8 @@ func New(cfg Config) Cored {
 	}
 }
 
-// Cored represents cored.
-type Cored struct {
+// TXd represents txd.
+type TXd struct {
 	config              Config
 	nodeID              string
 	nodePrivateKey      ed25519.PrivateKey
@@ -172,32 +172,32 @@ type Cored struct {
 }
 
 // Type returns type of application.
-func (c Cored) Type() infra.AppType {
+func (c TXd) Type() infra.AppType {
 	return AppType
 }
 
 // Name returns name of app.
-func (c Cored) Name() string {
+func (c TXd) Name() string {
 	return c.config.Name
 }
 
 // Info returns deployment info.
-func (c Cored) Info() infra.DeploymentInfo {
+func (c TXd) Info() infra.DeploymentInfo {
 	return c.config.AppInfo.Info()
 }
 
 // NodeID returns node ID.
-func (c Cored) NodeID() string {
+func (c TXd) NodeID() string {
 	return c.nodeID
 }
 
-// Config returns cored config.
-func (c Cored) Config() Config {
+// Config returns txd config.
+func (c TXd) Config() Config {
 	return c.config
 }
 
-// ClientContext creates new cored ClientContext.
-func (c Cored) ClientContext() client.Context {
+// ClientContext creates new txd ClientContext.
+func (c TXd) ClientContext() client.Context {
 	rpcClient, err := cosmosclient.
 		NewClientFromNode(infra.JoinNetAddr("http", c.Info().HostFromHost, c.Config().Ports.RPC))
 	must.OK(err)
@@ -212,22 +212,22 @@ func (c Cored) ClientContext() client.Context {
 }
 
 // TxFactory returns factory with present values for the chain.
-func (c Cored) TxFactory(clientCtx client.Context) tx.Factory {
+func (c TXd) TxFactory(clientCtx client.Context) tx.Factory {
 	return tx.Factory{}.
 		WithKeybase(clientCtx.Keyring()).
 		WithChainID(string(c.config.GenesisInitConfig.ChainID)).
 		WithTxConfig(clientCtx.TxConfig())
 }
 
-// HealthCheck checks if cored chain is ready to accept transactions.
-func (c Cored) HealthCheck(ctx context.Context) error {
+// HealthCheck checks if txd chain is ready to accept transactions.
+func (c TXd) HealthCheck(ctx context.Context) error {
 	return infra.CheckCosmosNodeHealth(ctx, c.ClientContext(), c.Info())
 }
 
-// Deployment returns deployment of cored.
+// Deployment returns deployment of txd.
 //
 //nolint:funlen
-func (c Cored) Deployment() infra.Deployment {
+func (c TXd) Deployment() infra.Deployment {
 	deployment := infra.Deployment{
 		RunAsUser: true,
 		Image:     c.config.DockerImage,
@@ -241,7 +241,7 @@ func (c Cored) Deployment() infra.Deployment {
 				},
 				{
 					Name:  "DAEMON_NAME",
-					Value: "cored",
+					Value: "txd",
 				},
 				{
 					Name:  "GOCOVERDIR",
@@ -347,7 +347,7 @@ func (c Cored) Deployment() infra.Deployment {
 }
 
 // SaveGenesis saves json encoded representation of the genesis config into file.
-func (c Cored) SaveGenesis(ctx context.Context, homeDir string) error {
+func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 	configDir := filepath.Join(homeDir, "config")
 
 	if err := os.MkdirAll(configDir, 0o700); err != nil {
@@ -377,15 +377,19 @@ func (c Cored) SaveGenesis(ctx context.Context, homeDir string) error {
 	// get particular binary path from or run using the default(compiled) binary
 	var binaryPath string
 	if c.config.BinaryVersion != "" {
+		binaryName := "txd"
+		if c.config.BinaryVersion == "v5.0.0" {
+			binaryName = "cored"
+		}
 		binaryPath = filepath.Join(
 			c.config.BinDir,
 			".cache",
-			"cored",
+			"txd",
 			tools.TargetPlatformLocal.String(), "bin",
-			"cored"+"-"+c.Config().BinaryVersion,
+			binaryName+"-"+c.Config().BinaryVersion,
 		)
 	} else {
-		binaryPath = filepath.Join(c.config.BinDir, "cored")
+		binaryPath = filepath.Join(c.config.BinDir, "txd")
 	}
 
 	return libexec.Exec(
@@ -438,22 +442,25 @@ func AddDEXGenesisConfig(ctx context.Context, genesisConfig GenesisInitConfig) (
 	return genesisConfig, nil
 }
 
-func (c Cored) dockerBinaryPath() string {
-	coredStandardBinName := "cored"
-	coredBinName := coredStandardBinName
-	coredStandardPath := filepath.Join(
-		c.config.BinDir, ".cache", "cored", tools.TargetPlatformLinuxLocalArchInDocker.String(), "bin",
+func (c TXd) dockerBinaryPath() string {
+	txdStandardBinName := "txd"
+	if c.Config().BinaryVersion == "v5.0.0" {
+		txdStandardBinName = "cored"
+	}
+	txdBinName := txdStandardBinName
+	txdStandardPath := filepath.Join(
+		c.config.BinDir, ".cache", "txd", tools.TargetPlatformLinuxLocalArchInDocker.String(), "bin",
 	)
-	coredPath := coredStandardPath
+	txdPath := txdStandardPath
 
 	// by default the binary version is latest, but if `BinaryVersion` is provided we take it as initial
 	if c.Config().BinaryVersion != "" {
-		return filepath.Join(coredStandardPath, coredStandardBinName+"-"+c.Config().BinaryVersion)
+		return filepath.Join(txdStandardPath, txdStandardBinName+"-"+c.Config().BinaryVersion)
 	}
-	return filepath.Join(coredPath, coredBinName)
+	return filepath.Join(txdPath, txdBinName)
 }
 
-func (c Cored) prepare(ctx context.Context) error {
+func (c TXd) prepare(ctx context.Context) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -500,7 +507,7 @@ func (c Cored) prepare(ctx context.Context) error {
 	// the path is defined by the build
 	if err := copyFile(
 		c.dockerBinaryPath(),
-		filepath.Join(c.config.HomeDir, "cosmovisor", "genesis", "bin", "cored"),
+		filepath.Join(c.config.HomeDir, "cosmovisor", "genesis", "bin", "txd"),
 		0o755); err != nil {
 		return err
 	}
@@ -508,11 +515,11 @@ func (c Cored) prepare(ctx context.Context) error {
 	// upgrade to binary mapping
 	upgrades := c.Config().Upgrades
 	dockerLinuxBinaryPath := filepath.Join(
-		c.config.BinDir, ".cache", "cored", tools.TargetPlatformLinuxLocalArchInDocker.String(), "bin",
+		c.config.BinDir, ".cache", "txd", tools.TargetPlatformLinuxLocalArchInDocker.String(), "bin",
 	)
 	for upgrade, binary := range upgrades {
 		err := copyFile(filepath.Join(dockerLinuxBinaryPath, binary),
-			filepath.Join(c.config.HomeDir, "cosmovisor", "upgrades", upgrade, "bin", "cored"), 0o755)
+			filepath.Join(c.config.HomeDir, "cosmovisor", "upgrades", upgrade, "bin", "txd"), 0o755)
 		if err != nil {
 			return err
 		}
@@ -521,7 +528,7 @@ func (c Cored) prepare(ctx context.Context) error {
 	return nil
 }
 
-func (c Cored) saveClientWrapper(wrapperDir, hostname string) error {
+func (c TXd) saveClientWrapper(wrapperDir, hostname string) error {
 	clientWrapper := `#!/bin/bash
 OPTS=""
 if [ "$1" == "tx" ] || [ "$1" == "q" ] || [ "$1" == "query" ]; then
@@ -533,7 +540,7 @@ fi
 
 exec "` +
 		c.config.BinDir +
-		`/cored" --chain-id "` +
+		`/txd" --chain-id "` +
 		string(c.config.GenesisInitConfig.ChainID) +
 		`" --home "` +
 		filepath.Dir(c.config.HomeDir) +

@@ -44,7 +44,7 @@ func NewConfig(configF *infra.ConfigFactory, spec *infra.Spec) infra.Config {
 		EnvName:            configF.EnvName,
 		Profiles:           spec.Profiles,
 		TimeoutCommit:      spec.TimeoutCommit,
-		CoredVersion:       configF.CoredVersion,
+		TXdVersion:         configF.TXdVersion,
 		HomeDir:            homeDir,
 		RootDir:            configF.RootDir,
 		AppDir:             homeDir + "/app",
@@ -52,7 +52,7 @@ func NewConfig(configF *infra.ConfigFactory, spec *infra.Spec) infra.Config {
 		VerboseLogging:     configF.VerboseLogging,
 		LogFormat:          configF.LogFormat,
 		CoverageOutputFile: configF.CoverageOutputFile,
-		CoredUpgrades:      configF.CoredUpgrades,
+		TXdUpgrades:        configF.TXdUpgrades,
 	}
 
 	createDirs(config)
