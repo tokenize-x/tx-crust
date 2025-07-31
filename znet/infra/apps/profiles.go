@@ -75,7 +75,7 @@ func DefaultProfiles() []string {
 	return defaultProfiles
 }
 
-// ValidateProfiles verifies that profie set is correct.
+// ValidateProfiles verifies that profile set is correct.
 func ValidateProfiles(profiles []string) error {
 	pMap := map[string]bool{}
 	txdProfilePresent := false

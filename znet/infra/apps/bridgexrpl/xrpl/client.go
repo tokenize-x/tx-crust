@@ -55,13 +55,13 @@ type txResult struct {
 func (txr *txResult) UnmarshalJSON(b []byte) error {
 	var extract map[string]any
 	if err := json.Unmarshal(b, &extract); err != nil {
-		return errors.Errorf("faild to Unmarshal to map[string]any")
+		return errors.Errorf("failed to Unmarshal to map[string]any")
 	}
 	validated, ok := extract["validated"]
 	if ok {
 		validatedVal, ok := validated.(bool)
 		if !ok {
-			return errors.Errorf("faild to decode object, the validated attribute is not boolean")
+			return errors.Errorf("failed to decode object, the validated attribute is not boolean")
 		}
 		txr.Validated = validatedVal
 	}
@@ -130,7 +130,7 @@ func (c *RPCClient) SubmitAndAwaitSuccess(ctx context.Context, tx rippledata.Tra
 		return err
 	}
 	if !res.EngineResult.Success() {
-		return errors.Errorf("the tx submition is failed, %+v", res)
+		return errors.Errorf("the tx submission is failed, %+v", res)
 	}
 
 	retryCtx, retryCtxCancel := context.WithTimeout(ctx, time.Minute)

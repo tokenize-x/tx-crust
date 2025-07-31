@@ -1195,7 +1195,7 @@ func CopyToolBinaries(toolName Name, platform TargetPlatform, path string, binar
 	return nil
 }
 
-// PlatformRootPath returns path to the directory containing all platform-secific files.
+// PlatformRootPath returns path to the directory containing all platform-specific files.
 func PlatformRootPath(platform TargetPlatform) string {
 	return filepath.Join(CacheDir(), "tools", platform.String())
 }

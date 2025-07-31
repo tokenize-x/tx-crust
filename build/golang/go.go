@@ -678,7 +678,7 @@ func findFuzzTests(path string) (map[string][]string, error) {
 		}
 
 		if len(testNames) == 0 {
-			return errors.Errorf("invlaid %s fuzz test file, no fuzz tests found", path)
+			return errors.Errorf("invalid %s fuzz test file, no fuzz tests found", path)
 		}
 
 		fuzzTestPaths[path] = testNames
