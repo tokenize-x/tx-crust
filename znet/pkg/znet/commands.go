@@ -3,6 +3,7 @@ package znet
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	osexec "os/exec"
 	"path/filepath"
@@ -208,6 +209,49 @@ func CoverageConvert(ctx context.Context, configF *infra.ConfigFactory) error {
 	return errors.Errorf("no %s app found", txd.AppType)
 }
 
+// DumpAppDir dumps application directory to the specified destination.
+func DumpAppDir(configF *infra.ConfigFactory, appType infra.AppType) (string, error) {
+	spec := infra.NewSpec(configF)
+	config := NewConfig(configF, spec)
+
+	for appName, app := range spec.Apps {
+		if app.Type() != appType {
+			continue
+		}
+
+		if app.Info().Status != infra.AppStatusStopped {
+			return "", errors.New("directory dump can't be executed on top of running environment, stop it first")
+		}
+
+		txdAppHome := filepath.Join(config.AppDir, appName, string(constant.ChainIDDev))
+		dumpDir := filepath.Join(config.DumpDir, appName)
+
+		return dumpDir, copyDir(txdAppHome, dumpDir)
+	}
+
+	return "", errors.Errorf("no %s app found", appType)
+}
+
+// ExportGenesis exports the genesis file for one of the txd apps.
+func ExportGenesis(ctx context.Context, configF *infra.ConfigFactory, modulesToExport []string) (string, error) {
+	spec := infra.NewSpec(configF)
+	config := NewConfig(configF, spec)
+
+	for appName, app := range spec.Apps {
+		if app.Type() != txd.AppType {
+			continue
+		}
+
+		if app.Info().Status != infra.AppStatusStopped {
+			return "", errors.New("directory dump can't be executed on top of running environment, stop it first")
+		}
+
+		return txd.ExportGenesis(ctx, appName, config, modulesToExport)
+	}
+
+	return "", errors.Errorf("no %s app found", txd.AppType)
+}
+
 func saveWrapper(dir, file, command string) {
 	must.OK(os.WriteFile(dir+"/"+file, []byte(`#!/bin/bash
 exec "`+exe+`" "`+command+`" "$@"
@@ -259,4 +303,64 @@ func shellConfig(envName string) (string, string, error) {
 		promptVar = promptVarFn(envName)
 	}
 	return shell, promptVar, nil
+}
+
+// copyDir recursively copies a directory tree from src to dst.
+func copyDir(src, dst string) error {
+	srcInfo, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	// Create destination directory
+	if err := os.MkdirAll(dst, srcInfo.Mode()); err != nil {
+		return err
+	}
+
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		srcPath := filepath.Join(src, entry.Name())
+		dstPath := filepath.Join(dst, entry.Name())
+
+		if entry.IsDir() {
+			// Recursively copy subdirectory
+			if err := copyDir(srcPath, dstPath); err != nil {
+				return err
+			}
+		} else {
+			// Copy file
+			if err := copyFile(srcPath, dstPath); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// copyFile copies a single file from src to dst.
+func copyFile(src, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	srcInfo, err := srcFile.Stat()
+	if err != nil {
+		return err
+	}
+
+	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, srcInfo.Mode())
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	_, err = io.Copy(dstFile, srcFile)
+	return err
 }

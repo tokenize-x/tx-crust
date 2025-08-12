@@ -79,9 +79,6 @@ type TestConfig struct {
 
 	// Flags is a slice of additional flags to pass to `go test -c`. E.g -cover, -compiler, -ldflags=... etc.
 	Flags []string
-
-	// Envs is a slice of additional environment variables to pass to `go test -c`.
-	Envs []string
 }
 
 // env gets environment variables set in the system excluding Go env vars that
@@ -259,7 +256,7 @@ func RunTests(ctx context.Context, deps types.DepsFunc, config TestConfig) error
 
 	cmd := exec.Command(tools.Path("bin/go", tools.TargetPlatformLocal), args...)
 	cmd.Dir = config.PackagePath
-	cmd.Env = append(env(), config.Envs...)
+	cmd.Env = env()
 
 	logger.Get(ctx).Info(
 		"Running go tests",

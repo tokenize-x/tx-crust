@@ -48,6 +48,7 @@ func NewConfig(configF *infra.ConfigFactory, spec *infra.Spec) infra.Config {
 		HomeDir:            homeDir,
 		RootDir:            configF.RootDir,
 		AppDir:             homeDir + "/app",
+		DumpDir:            homeDir + "/dump",
 		WrapperDir:         homeDir + "/bin",
 		VerboseLogging:     configF.VerboseLogging,
 		LogFormat:          configF.LogFormat,
