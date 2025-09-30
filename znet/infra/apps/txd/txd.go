@@ -16,6 +16,8 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
+	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
+	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	cometbftcrypto "github.com/cometbft/cometbft/crypto"
 	cbfted25519 "github.com/cometbft/cometbft/crypto/ed25519"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
@@ -33,19 +35,17 @@ import (
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum/v6/pkg/client"
-	coreumconfig "github.com/CoreumFoundation/coreum/v6/pkg/config"
-	coreumconstant "github.com/CoreumFoundation/coreum/v6/pkg/config/constant"
-	assetft "github.com/CoreumFoundation/coreum/v6/x/asset/ft"
-	assetfttypes "github.com/CoreumFoundation/coreum/v6/x/asset/ft/types"
-	"github.com/CoreumFoundation/coreum/v6/x/dex"
-	dextypes "github.com/CoreumFoundation/coreum/v6/x/dex/types"
-	"github.com/CoreumFoundation/crust/build/tools"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/cosmoschain"
-	"github.com/CoreumFoundation/crust/znet/infra/targets"
+	"github.com/tokenize-x/crust/build/tools"
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/cosmoschain"
+	"github.com/tokenize-x/crust/znet/infra/targets"
+	"github.com/tokenize-x/tx-chain/v6/pkg/client"
+	txchainconfig "github.com/tokenize-x/tx-chain/v6/pkg/config"
+	txchainconstant "github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
+	assetft "github.com/tokenize-x/tx-chain/v6/x/asset/ft"
+	assetfttypes "github.com/tokenize-x/tx-chain/v6/x/asset/ft/types"
+	"github.com/tokenize-x/tx-chain/v6/x/dex"
+	dextypes "github.com/tokenize-x/tx-chain/v6/x/dex/types"
 )
 
 const (
@@ -97,17 +97,17 @@ type GenesisDEXConfig struct {
 //
 //nolint:tagliatelle
 type GenesisInitConfig struct {
-	ChainID            coreumconstant.ChainID `json:"chain_id"`
-	Denom              string                 `json:"denom"`
-	DisplayDenom       string                 `json:"display_denom"`
-	AddressPrefix      string                 `json:"address_prefix"`
-	GenesisTime        time.Time              `json:"genesis_time"`
-	GovConfig          GovConfig              `json:"gov_config"`
-	CustomParamsConfig CustomParamsConfig     `json:"custom_params_config"`
-	BankBalances       []banktypes.Balance    `json:"bank_balances"`
-	Validators         []GenesisValidator     `json:"validators"`
-	DEXConfig          GenesisDEXConfig       `json:"dex_config"`
-	GenTxs             []json.RawMessage      `json:"gen_txs"`
+	ChainID            txchainconstant.ChainID `json:"chain_id"`
+	Denom              string                  `json:"denom"`
+	DisplayDenom       string                  `json:"display_denom"`
+	AddressPrefix      string                  `json:"address_prefix"`
+	GenesisTime        time.Time               `json:"genesis_time"`
+	GovConfig          GovConfig               `json:"gov_config"`
+	CustomParamsConfig CustomParamsConfig      `json:"custom_params_config"`
+	BankBalances       []banktypes.Balance     `json:"bank_balances"`
+	Validators         []GenesisValidator      `json:"validators"`
+	DEXConfig          GenesisDEXConfig        `json:"dex_config"`
+	GenTxs             []json.RawMessage       `json:"gen_txs"`
 }
 
 // GovConfig contains the gov config part of genesis.
@@ -464,7 +464,7 @@ func (c TXd) prepare(ctx context.Context) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	saveTendermintConfig(coreumconfig.NodeConfig{
+	saveTendermintConfig(txchainconfig.NodeConfig{
 		Name:           c.config.Name,
 		PrometheusPort: c.config.Ports.Prometheus,
 		NodeKey:        c.nodePrivateKey,
@@ -580,7 +580,7 @@ func signTxsWithMnemonic(
 	msgs ...sdk.Msg,
 ) ([]byte, error) {
 	const signerKeyName = "signer"
-	encodingConfig := coreumconfig.NewEncodingConfig(
+	encodingConfig := txchainconfig.NewEncodingConfig(
 		assetft.AppModuleBasic{},
 		dex.AppModuleBasic{},
 	)
@@ -589,7 +589,7 @@ func signTxsWithMnemonic(
 		signerKeyName,
 		mnemonic,
 		"",
-		hd.CreateHDPath(coreumconstant.CoinType, 0, 0).String(),
+		hd.CreateHDPath(txchainconstant.CoinType, 0, 0).String(),
 		hd.Secp256k1,
 	)
 	if err != nil {

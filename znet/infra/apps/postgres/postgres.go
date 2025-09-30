@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	"github.com/jackc/pgx/v4"
 	"github.com/pkg/errors"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
-	"github.com/CoreumFoundation/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra"
 )
 
 const (

@@ -11,6 +11,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	cosmosclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -21,12 +22,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum/v6/pkg/client"
-	"github.com/CoreumFoundation/coreum/v6/pkg/config"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/targets"
-	"github.com/CoreumFoundation/crust/znet/pkg/tools"
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/targets"
+	"github.com/tokenize-x/crust/znet/pkg/tools"
+	"github.com/tokenize-x/tx-chain/v6/pkg/client"
+	"github.com/tokenize-x/tx-chain/v6/pkg/config"
 )
 
 const dockerEntrypoint = "run.sh"

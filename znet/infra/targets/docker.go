@@ -13,14 +13,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
-
 	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
 	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
 	"github.com/CoreumFoundation/coreum-tools/pkg/parallel"
-	"github.com/CoreumFoundation/crust/exec"
-	"github.com/CoreumFoundation/crust/znet/infra"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
+
+	"github.com/tokenize-x/crust/exec"
+	"github.com/tokenize-x/crust/znet/infra"
 )
 
 const (

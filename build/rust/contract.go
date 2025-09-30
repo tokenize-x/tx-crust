@@ -12,14 +12,14 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
+	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/mod/sumdb/dirhash"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
-	"github.com/CoreumFoundation/crust/build/tools"
-	"github.com/CoreumFoundation/crust/build/types"
+	"github.com/tokenize-x/crust/build/tools"
+	"github.com/tokenize-x/crust/build/types"
 )
 
 // BuildSmartContract builds smart contract.

@@ -15,14 +15,14 @@ log_with_time() {
 if [ ! -d "$RELAYER_KEYS_PATH" ]; then
 
   log_with_time "Importing the relayer mnemonics."
-  echo "{{ .CoreumRelayerMnemonic }}" > "$HOME/coreum-mnemonic"
-  hermes keys add --key-name {{ .CoreumChanID }} --chain {{ .CoreumChanID }} --hd-path "m/44'/{{ .CoreumRelayerCoinType }}'/0'/0/0" --mnemonic-file "$HOME/coreum-mnemonic"
+  echo "{{ .TXChainRelayerMnemonic }}" > "$HOME/txchain-mnemonic"
+  hermes keys add --key-name {{ .TXChainChanID }} --chain {{ .TXChainChanID }} --hd-path "m/44'/{{ .TXChainRelayerCoinType }}'/0'/0/0" --mnemonic-file "$HOME/txchain-mnemonic"
   
   {{ range .Peers }}
   echo "{{ .RelayerMnemonic }}" > "$HOME/{{ .ChanID }}-mnemonic"
   hermes keys add --key-name {{ .ChanID }} --chain {{ .ChanID }} --mnemonic-file "$HOME/{{ .ChanID }}-mnemonic"
   log_with_time "Connecting the chains."
-  hermes create channel --a-chain {{ $.CoreumChanID }} --b-chain {{ .ChanID }} --a-port transfer --b-port transfer --new-client-connection --yes
+  hermes create channel --a-chain {{ $.TXChainChanID }} --b-chain {{ .ChanID }} --a-port transfer --b-port transfer --new-client-connection --yes
   {{ end }}
 fi
 
@@ -32,7 +32,7 @@ hermes start &
 # Capture the process ID to kill it later if needed
 PID=$!
 
-INITIAL_VERSION=$(curl -s {{ .CoreumRPCURL }}/abci_info\? | jq '.result.response.version')
+INITIAL_VERSION=$(curl -s {{ .TXChainRPCURL }}/abci_info\? | jq '.result.response.version')
 
 # If initial version is empty kill the process.
 if [ -z "$INITIAL_VERSION" ]; then
@@ -44,7 +44,7 @@ fi
 while true; do
   sleep 3
 
-  CURRENT_VERSION=$(curl -s {{ .CoreumRPCURL }}/abci_info\? | jq '.result.response.version')
+  CURRENT_VERSION=$(curl -s {{ .TXChainRPCURL }}/abci_info\? | jq '.result.response.version')
 
   log_with_time "Running API version check. Current: $CURRENT_VERSION Initial: $INITIAL_VERSION"
 

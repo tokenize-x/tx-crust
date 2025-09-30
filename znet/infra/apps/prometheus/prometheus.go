@@ -12,15 +12,15 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/callisto"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/faucet"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/hermes"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
+	"github.com/pkg/errors"
+
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/apps/callisto"
+	"github.com/tokenize-x/crust/znet/infra/apps/faucet"
+	"github.com/tokenize-x/crust/znet/infra/apps/hermes"
+	"github.com/tokenize-x/crust/znet/infra/apps/txd"
 )
 
 var (

@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum/v6/pkg/config"
+
+	"github.com/tokenize-x/tx-chain/v6/pkg/config"
 )
 
 // DefaultGasPriceStr defines default gas price to be used inside IBC relayer.

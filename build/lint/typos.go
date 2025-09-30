@@ -7,13 +7,13 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
+	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
-	"github.com/CoreumFoundation/crust/build/tools"
-	"github.com/CoreumFoundation/crust/build/types"
+	"github.com/tokenize-x/crust/build/tools"
+	"github.com/tokenize-x/crust/build/types"
 )
 
 var (

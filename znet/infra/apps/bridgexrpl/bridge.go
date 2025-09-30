@@ -12,6 +12,8 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
+	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
+	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	cosmosclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -25,28 +27,26 @@ import (
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
-	"github.com/CoreumFoundation/coreum/v6/pkg/client"
-	"github.com/CoreumFoundation/coreum/v6/pkg/config"
-	"github.com/CoreumFoundation/coreum/v6/pkg/config/constant"
-	"github.com/CoreumFoundation/coreum/v6/testutil/event"
-	assetfttypes "github.com/CoreumFoundation/coreum/v6/x/asset/ft/types"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	coreumhelper "github.com/CoreumFoundation/crust/znet/infra/apps/bridgexrpl/coreum"
-	xrplhelper "github.com/CoreumFoundation/crust/znet/infra/apps/bridgexrpl/xrpl"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/xrpl"
-	"github.com/CoreumFoundation/crust/znet/infra/targets"
+	"github.com/tokenize-x/crust/znet/infra"
+	txchainhelper "github.com/tokenize-x/crust/znet/infra/apps/bridgexrpl/coreum"
+	xrplhelper "github.com/tokenize-x/crust/znet/infra/apps/bridgexrpl/xrpl"
+	"github.com/tokenize-x/crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/crust/znet/infra/apps/xrpl"
+	"github.com/tokenize-x/crust/znet/infra/targets"
+	"github.com/tokenize-x/tx-chain/v6/pkg/client"
+	"github.com/tokenize-x/tx-chain/v6/pkg/config"
+	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
+	"github.com/tokenize-x/tx-chain/v6/testutil/event"
+	assetfttypes "github.com/tokenize-x/tx-chain/v6/x/asset/ft/types"
 )
 
 const (
 	// AppType is the type of txd application.
 	AppType infra.AppType = "bridgexrpl"
 
-	numberOfTickets      = 250
-	coreumAdminBalance   = 10_000_000_000
-	coreumRelayerBalance = 100_000_000
+	numberOfTickets       = 250
+	txChainAdminBalance   = 10_000_000_000
+	txChainRelayerBalance = 100_000_000
 )
 
 //go:embed relayer.tmpl.yaml
@@ -190,7 +190,7 @@ func (b Bridge) setupBridge(ctx context.Context) error {
 			return err
 		}
 
-		if err := b.fundCoreumAccounts(ctx); err != nil {
+		if err := b.fundTXChainAccounts(ctx); err != nil {
 			return err
 		}
 
@@ -316,7 +316,7 @@ func (b Bridge) deployAndInitSmartContract(ctx context.Context, rpcClient *xrplh
 
 	adminKeyInfo, err := clientCtx.Keyring().NewAccount(
 		uuid.New().String(),
-		CoreumAdminMnemonic,
+		TXChainAdminMnemonic,
 		"",
 		hd.CreateHDPath(constant.CoinType, 0, 0).String(),
 		hd.Secp256k1,
@@ -358,14 +358,14 @@ func (b Bridge) deployAndInitSmartContract(ctx context.Context, rpcClient *xrplh
 	}
 
 	type relayer struct {
-		CoreumAddress sdk.AccAddress `json:"coreum_address"`
-		XRPLAddress   string         `json:"xrpl_address"`
-		XRPLPubKey    string         `json:"xrpl_pub_key"`
+		TXChain     sdk.AccAddress `json:"coreum_address"`
+		XRPLAddress string         `json:"xrpl_address"`
+		XRPLPubKey  string         `json:"xrpl_pub_key"`
 	}
 
 	relayers := make([]relayer, 0, len(RelayerMnemonics))
 	for _, m := range RelayerMnemonics {
-		coreumAcc, err := coreumhelper.AccountFromMnemonic(m.Coreum)
+		txChainAcc, err := txchainhelper.AccountFromMnemonic(m.TXChain)
 		if err != nil {
 			return err
 		}
@@ -381,9 +381,9 @@ func (b Bridge) deployAndInitSmartContract(ctx context.Context, rpcClient *xrplh
 		}
 
 		relayers = append(relayers, relayer{
-			CoreumAddress: coreumAcc,
-			XRPLAddress:   xrplAcc.String(),
-			XRPLPubKey:    fmt.Sprintf("%X", xrplPrivKey.Public(lo.ToPtr[uint32](0))),
+			TXChain:     txChainAcc,
+			XRPLAddress: xrplAcc.String(),
+			XRPLPubKey:  fmt.Sprintf("%X", xrplPrivKey.Public(lo.ToPtr[uint32](0))),
 		})
 	}
 
@@ -482,7 +482,7 @@ func (b Bridge) importKeys() error {
 
 	return addKeyToTestKeyring(keyringDir, "coreum-relayer", "coreum",
 		hd.CreateHDPath(constant.CoinType, 0, 0).String(),
-		b.config.Mnemonics.Coreum,
+		b.config.Mnemonics.TXChain,
 	)
 }
 
@@ -494,17 +494,17 @@ func (b Bridge) saveConfig() error {
 	defer f.Close()
 
 	return errors.WithStack(template.Must(template.New("").Parse(configTmpl)).Execute(f, struct {
-		XRPLRPCURL            string
-		CoreumGRPCURL         string
-		CoreumContractAddress string
-		MetricsPort           int
+		XRPLRPCURL             string
+		TXChainGRPCURL         string
+		TXChainContractAddress string
+		MetricsPort            int
 	}{
 		XRPLRPCURL: infra.JoinNetAddr("http", b.config.XRPL.Info().HostFromContainer,
 			b.config.XRPL.Config().RPCPort),
-		CoreumGRPCURL: infra.JoinNetAddr("http", b.config.TXd.Info().HostFromContainer,
+		TXChainGRPCURL: infra.JoinNetAddr("http", b.config.TXd.Info().HostFromContainer,
 			b.config.TXd.Config().Ports.GRPC),
-		CoreumContractAddress: *b.contractAddr,
-		MetricsPort:           b.Config().Ports.Metrics,
+		TXChainContractAddress: *b.contractAddr,
+		MetricsPort:            b.Config().Ports.Metrics,
 	}))
 }
 
@@ -578,7 +578,7 @@ func fundXRPLAccounts(ctx context.Context, rpcClient *xrplhelper.RPCClient) erro
 	return nil
 }
 
-func (b Bridge) fundCoreumAccounts(ctx context.Context) error {
+func (b Bridge) fundTXChainAccounts(ctx context.Context) error {
 	txdConfig := b.config.TXd.Config()
 
 	clientCtx := b.config.TXd.ClientContext().
@@ -608,7 +608,7 @@ func (b Bridge) fundCoreumAccounts(ctx context.Context) error {
 
 	clientCtx = clientCtx.WithFromAddress(faucetAddr)
 
-	adminCoreumAccount, err := coreumhelper.AccountFromMnemonic(CoreumAdminMnemonic)
+	adminTXChainAccount, err := txchainhelper.AccountFromMnemonic(TXChainAdminMnemonic)
 	if err != nil {
 		return err
 	}
@@ -618,27 +618,27 @@ func (b Bridge) fundCoreumAccounts(ctx context.Context) error {
 			{
 				Address: faucetAddr.String(),
 				Coins: sdk.NewCoins(sdk.NewCoin(txdConfig.GenesisInitConfig.Denom,
-					sdkmath.NewInt(coreumAdminBalance).Add(
-						sdkmath.NewInt(coreumRelayerBalance).MulRaw(int64(len(RelayerMnemonics))),
+					sdkmath.NewInt(txChainAdminBalance).Add(
+						sdkmath.NewInt(txChainRelayerBalance).MulRaw(int64(len(RelayerMnemonics))),
 					),
 				)),
 			},
 		},
 		Outputs: []banktypes.Output{
 			{
-				Address: adminCoreumAccount.String(),
-				Coins:   sdk.NewCoins(sdk.NewInt64Coin(txdConfig.GenesisInitConfig.Denom, coreumAdminBalance)),
+				Address: adminTXChainAccount.String(),
+				Coins:   sdk.NewCoins(sdk.NewInt64Coin(txdConfig.GenesisInitConfig.Denom, txChainAdminBalance)),
 			},
 		},
 	}
 	for _, m := range RelayerMnemonics {
-		relayerAccount, err := coreumhelper.AccountFromMnemonic(m.Coreum)
+		relayerAccount, err := txchainhelper.AccountFromMnemonic(m.TXChain)
 		if err != nil {
 			return err
 		}
 		sendMsg.Outputs = append(sendMsg.Outputs, banktypes.Output{
 			Address: relayerAccount.String(),
-			Coins:   sdk.NewCoins(sdk.NewInt64Coin(txdConfig.GenesisInitConfig.Denom, coreumRelayerBalance)),
+			Coins:   sdk.NewCoins(sdk.NewInt64Coin(txdConfig.GenesisInitConfig.Denom, txChainRelayerBalance)),
 		})
 	}
 

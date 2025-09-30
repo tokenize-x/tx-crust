@@ -18,14 +18,14 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
+	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
+	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/crust/build/types"
+	"github.com/tokenize-x/crust/build/types"
 )
 
 // Tool names.

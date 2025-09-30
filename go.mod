@@ -1,4 +1,4 @@
-module github.com/CoreumFoundation/crust
+module github.com/tokenize-x/crust
 
 go 1.24
 

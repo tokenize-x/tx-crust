@@ -6,9 +6,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/CoreumFoundation/crust/build/docker"
-	"github.com/CoreumFoundation/crust/build/tools"
-	"github.com/CoreumFoundation/crust/build/types"
+	"github.com/tokenize-x/crust/build/docker"
+	"github.com/tokenize-x/crust/build/tools"
+	"github.com/tokenize-x/crust/build/types"
 )
 
 // Remove removes all the resources used by crust.

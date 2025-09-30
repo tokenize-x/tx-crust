@@ -9,7 +9,8 @@ import (
 
 	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
 	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/crust/znet/infra"
+
+	"github.com/tokenize-x/crust/znet/infra"
 )
 
 const (

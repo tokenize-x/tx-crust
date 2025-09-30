@@ -13,23 +13,23 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
 
-	"github.com/CoreumFoundation/coreum/v6/pkg/config/constant"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/bigdipper"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/blockexplorer"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/bridgexrpl"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/callisto"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/faucet"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/gaiad"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/grafana"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/hasura"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/hermes"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/osmosis"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/postgres"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/prometheus"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/xrpl"
-	"github.com/CoreumFoundation/crust/znet/infra/cosmoschain"
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/apps/bigdipper"
+	"github.com/tokenize-x/crust/znet/infra/apps/blockexplorer"
+	"github.com/tokenize-x/crust/znet/infra/apps/bridgexrpl"
+	"github.com/tokenize-x/crust/znet/infra/apps/callisto"
+	"github.com/tokenize-x/crust/znet/infra/apps/faucet"
+	"github.com/tokenize-x/crust/znet/infra/apps/gaiad"
+	"github.com/tokenize-x/crust/znet/infra/apps/grafana"
+	"github.com/tokenize-x/crust/znet/infra/apps/hasura"
+	"github.com/tokenize-x/crust/znet/infra/apps/hermes"
+	"github.com/tokenize-x/crust/znet/infra/apps/osmosis"
+	"github.com/tokenize-x/crust/znet/infra/apps/postgres"
+	"github.com/tokenize-x/crust/znet/infra/apps/prometheus"
+	"github.com/tokenize-x/crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/crust/znet/infra/apps/xrpl"
+	"github.com/tokenize-x/crust/znet/infra/cosmoschain"
+	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
 )
 
 // Factory produces apps from config.
@@ -72,7 +72,7 @@ func (f *Factory) TXdNetwork(
 		DisplayDenom:  constant.DenomDevDisplay,
 		AddressPrefix: addressPrefix,
 		GenesisTime:   time.Now(),
-		// These values are hardcoded in TestExpeditedGovProposalWithDepositAndWeightedVotes test of coreum.
+		// These values are hardcoded in TestExpeditedGovProposalWithDepositAndWeightedVotes test of TX.
 		// Remember to update that test if these values are changed
 		GovConfig: txd.GovConfig{
 			MinDeposit:            sdk.NewCoins(sdk.NewInt64Coin(constant.DenomDev, 1000)),
@@ -179,7 +179,7 @@ func (f *Factory) TXdNetwork(
 				"alice":      txd.AliceMnemonic,
 				"bob":        txd.BobMnemonic,
 				"charlie":    txd.CharlieMnemonic,
-				"xrplbridge": bridgexrpl.CoreumAdminMnemonic,
+				"xrplbridge": bridgexrpl.TXChainAdminMnemonic,
 			},
 			FundingMnemonic: txd.FundingMnemonic,
 			FaucetMnemonic:  txd.FaucetMnemonic,
@@ -296,13 +296,13 @@ func (f *Factory) IBC(prefix string, txdApp txd.TXd) infra.AppSet {
 	})
 
 	hermesApp := hermes.New(hermes.Config{
-		Name:                  nameRelayerHermes,
-		HomeDir:               filepath.Join(f.config.AppDir, nameRelayerHermes),
-		AppInfo:               f.spec.DescribeApp(hermes.AppType, nameRelayerHermes),
-		TelemetryPort:         hermes.DefaultTelemetryPort,
-		TXd:                   txdApp,
-		CoreumRelayerMnemonic: txd.RelayerMnemonic,
-		PeeredChains:          []cosmoschain.BaseApp{gaiaApp, osmosisApp},
+		Name:                   nameRelayerHermes,
+		HomeDir:                filepath.Join(f.config.AppDir, nameRelayerHermes),
+		AppInfo:                f.spec.DescribeApp(hermes.AppType, nameRelayerHermes),
+		TelemetryPort:          hermes.DefaultTelemetryPort,
+		TXd:                    txdApp,
+		TXChainRelayerMnemonic: txd.RelayerMnemonic,
+		PeeredChains:           []cosmoschain.BaseApp{gaiaApp, osmosisApp},
 	})
 
 	return infra.AppSet{

@@ -1,11 +1,10 @@
 package txd
 
 import (
+	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
-
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 )
 
 const (

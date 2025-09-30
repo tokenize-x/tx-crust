@@ -4,9 +4,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/hasura"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/apps/hasura"
+	"github.com/tokenize-x/crust/znet/infra/apps/txd"
 )
 
 const (

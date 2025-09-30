@@ -12,18 +12,18 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/CoreumFoundation/coreum-tools/pkg/must"
+	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/expfmt"
 	"github.com/samber/lo"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
-	coreumconstant "github.com/CoreumFoundation/coreum/v6/pkg/config/constant"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
-	"github.com/CoreumFoundation/crust/znet/infra/cosmoschain"
-	"github.com/CoreumFoundation/crust/znet/infra/targets"
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/crust/znet/infra/cosmoschain"
+	"github.com/tokenize-x/crust/znet/infra/targets"
+	txchainconstant "github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
 )
 
 var (
@@ -48,13 +48,13 @@ const (
 
 // Config stores hermes app config.
 type Config struct {
-	Name                  string
-	HomeDir               string
-	AppInfo               *infra.AppInfo
-	TelemetryPort         int
-	TXd                   txd.TXd
-	CoreumRelayerMnemonic string
-	PeeredChains          []cosmoschain.BaseApp
+	Name                   string
+	HomeDir                string
+	AppInfo                *infra.AppInfo
+	TelemetryPort          int
+	TXd                    txd.TXd
+	TXChainRelayerMnemonic string
+	PeeredChains           []cosmoschain.BaseApp
 }
 
 // New creates new hermes app.
@@ -277,23 +277,23 @@ func (h Hermes) saveRunScriptFile() error {
 	scriptArgs := struct {
 		HomePath string
 
-		CoreumChanID          string
-		CoreumRelayerMnemonic string
-		CoreumRPCURL          string
-		CoreumRelayerCoinType uint32
+		TXChainChanID          string
+		TXChainRelayerMnemonic string
+		TXChainRPCURL          string
+		TXChainRelayerCoinType uint32
 
 		Peers []peersConfig
 	}{
 		HomePath: targets.AppHomeDir,
 
-		CoreumChanID:          string(h.config.TXd.Config().GenesisInitConfig.ChainID),
-		CoreumRelayerMnemonic: h.config.CoreumRelayerMnemonic,
-		CoreumRPCURL: infra.JoinNetAddr(
+		TXChainChanID:          string(h.config.TXd.Config().GenesisInitConfig.ChainID),
+		TXChainRelayerMnemonic: h.config.TXChainRelayerMnemonic,
+		TXChainRPCURL: infra.JoinNetAddr(
 			"http",
 			h.config.TXd.Info().HostFromContainer,
 			h.config.TXd.Config().Ports.RPC,
 		),
-		CoreumRelayerCoinType: coreumconstant.CoinType,
+		TXChainRelayerCoinType: txchainconstant.CoinType,
 
 		Peers: peers,
 	}

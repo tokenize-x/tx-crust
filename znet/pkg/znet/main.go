@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
-
 	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
 	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	"github.com/CoreumFoundation/coreum-tools/pkg/run"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/apps"
 )
 
 // Main is the main function of znet.

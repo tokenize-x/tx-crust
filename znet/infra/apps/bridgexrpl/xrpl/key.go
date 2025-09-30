@@ -9,7 +9,7 @@ import (
 	rippledata "github.com/rubblelabs/ripple/data"
 	"github.com/samber/lo"
 
-	coreumconfig "github.com/CoreumFoundation/coreum/v6/pkg/config"
+	txchainconfig "github.com/tokenize-x/tx-chain/v6/pkg/config"
 )
 
 // HDPath is the hd path of XRPL key.
@@ -28,7 +28,7 @@ func KeyFromSeed(seedPhrase string) (crypto.Key, error) {
 func KeyFromMnemonic(mnemonic string) (crypto.Key, error) {
 	const keyName = "key"
 
-	encodingConfig := coreumconfig.NewEncodingConfig()
+	encodingConfig := txchainconfig.NewEncodingConfig()
 	kr := keyring.NewInMemory(encodingConfig.Codec)
 
 	_, err := kr.NewAccount(

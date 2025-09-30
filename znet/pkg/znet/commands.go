@@ -12,17 +12,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
-	"github.com/pkg/errors"
-
 	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
 	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	"github.com/CoreumFoundation/coreum-tools/pkg/parallel"
-	"github.com/CoreumFoundation/coreum/v6/pkg/config/constant"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
-	"github.com/CoreumFoundation/crust/znet/infra/targets"
+	"github.com/fsnotify/fsnotify"
+	"github.com/pkg/errors"
+
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/apps"
+	"github.com/tokenize-x/crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/crust/znet/infra/targets"
+	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
 )
 
 var exe = must.String(filepath.EvalSymlinks(must.String(os.Executable())))

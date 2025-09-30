@@ -11,15 +11,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/samber/lo"
-	"go.uber.org/zap"
-
 	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
 	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
 	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	"github.com/CoreumFoundation/coreum-tools/pkg/parallel"
-	"github.com/CoreumFoundation/crust/exec"
+	"github.com/pkg/errors"
+	"github.com/samber/lo"
+	"go.uber.org/zap"
+
+	"github.com/tokenize-x/crust/exec"
 )
 
 // AppType represents the type of application.

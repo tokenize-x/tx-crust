@@ -1,4 +1,4 @@
-package coreum
+package txchain
 
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -6,15 +6,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
-	coreumconfig "github.com/CoreumFoundation/coreum/v6/pkg/config"
-	"github.com/CoreumFoundation/coreum/v6/pkg/config/constant"
+	txchainconfig "github.com/tokenize-x/tx-chain/v6/pkg/config"
+	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
 )
 
 // AccountFromMnemonic creates account from mnemonic.
 func AccountFromMnemonic(mnemonic string) (sdk.AccAddress, error) {
 	const keyName = "key"
 
-	encodingConfig := coreumconfig.NewEncodingConfig()
+	encodingConfig := txchainconfig.NewEncodingConfig()
 	kr := keyring.NewInMemory(encodingConfig.Codec)
 
 	keyInfo, err := kr.NewAccount(

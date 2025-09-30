@@ -16,52 +16,52 @@ Install them manually before continuing.
 
 ## Building
 
-1. Clone repos to the directory of your choice (let's call it `$COREUM_PATH`):
+1. Clone repos to the directory of your choice (let's call it `$TOKENIZEX_PATH`):
 
 ```
-cd $COREUM_PATH
-git clone https://github.com/CoreumFoundation/crust
-git clone https://github.com/CoreumFoundation/coreum
+cd $TOKENIZEX_PATH
+git clone https://github.com/tokenize-x/crust
+git clone https://github.com/tokenize-x/tx-chain
 ```
 
 If you are going to use faucet and explorer, also clone these repos:
 
 ```
-git clone https://github.com/CoreumFoundation/faucet
-git clone https://github.com/CoreumFoundation/callisto
+git clone https://github.com/tokenize-x/faucet
+git clone https://github.com/tokenize-x/callisto
 ```
 
 2. Not required but recommended: Add bin directory of all projects to your `PATH` environment variable:
 
 ```
-export PATH="$COREUM_PATH/crust/bin:$COREUM_PATH/coreum/bin:$COREUM_PATH/faucet/bin:$COREUM_PATH/callisto/bin:$PATH"
+export PATH="$TOKENIZEX_PATH/crust/bin:$TOKENIZEX_PATH/tx-chain/bin:$TOKENIZEX_PATH/faucet/bin:$TOKENIZEX_PATH/callisto/bin:$PATH"
 ```
 
 3. Compile all the required binaries and docker images:
 
 ```
-$COREUM_PATH/coreum/bin/coreum-builder build images
+$TOKENIZEX_PATH/tx-chain/bin/tx-chain-builder build images
 ```
 
 If you are going to use faucet and explorer, also build their images:
 
 ```
-$COREUM_PATH/faucet/bin/faucet-builder build images
-$COREUM_PATH/callisto/bin/callisto-builder build images
+$TOKENIZEX_PATH/faucet/bin/faucet-builder build images
+$TOKENIZEX_PATH/callisto/bin/callisto-builder build images
 ```
 
-After the command `coreum-builder build images` completes the symbolic links should be created to the crust `bin` and `.cache` directory using the following commands.
+After the command `tx-chain-builder build images` completes the symbolic links should be created to the crust `bin` and `.cache` directory using the following commands.
 
 ```sh
-ln -s $COREUM_PATH/coreum/bin/.cache/txd $COREUM_PATH/crust/bin/.cache/
+ln -s $TOKENIZEX_PATH/tx-chain/bin/.cache/txd $TOKENIZEX_PATH/crust/bin/.cache/
 ```
 
 ```sh
-ln -s $COREUM_PATH/coreum/bin/txd $COREUM_PATH/crust/bin/txd
+ln -s $TOKENIZEX_PATH/tx-chain/bin/txd $TOKENIZEX_PATH/crust/bin/txd
 ```
 
 _Note: You need to run respective builder `build images` after you modify that project.
-For example if you do a modification in coreum project, you need to run `coreum-builder build images`._
+For example if you do a modification in tx-chain project, you need to run `tx-chain-builder build images`._
 
 ## Executing `znet`
 
@@ -138,7 +138,7 @@ with `crust znet remove` so you can start a new environment.
 Also, it's possible to execute tests with any previously released version.
 
 ```
-$ crust znet test --txd-version=v1.0.0 --test-groups=coreum-upgrade
+$ crust znet test --txd-version=v1.0.0 --test-groups=tx-chain-upgrade
 ```
 
 ## Commands

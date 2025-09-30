@@ -4,8 +4,8 @@ import (
 	_ "embed"
 	"text/template"
 
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/cosmoschain"
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/cosmoschain"
 )
 
 const (

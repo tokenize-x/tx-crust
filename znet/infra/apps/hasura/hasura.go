@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/callisto"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/postgres"
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/apps/callisto"
+	"github.com/tokenize-x/crust/znet/infra/apps/postgres"
 )
 
 const (

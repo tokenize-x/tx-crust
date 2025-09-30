@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/CoreumFoundation/crust/build"
+	"github.com/tokenize-x/crust/build"
 )
 
 func main() {

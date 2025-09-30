@@ -8,12 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
+	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/mod/semver"
-
-	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
 )
 
 const repoPath = "."

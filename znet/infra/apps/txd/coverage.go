@@ -4,12 +4,12 @@ import (
 	"context"
 	"path/filepath"
 
-	"go.uber.org/zap"
-
 	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
 	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
-	"github.com/CoreumFoundation/crust/exec"
-	"github.com/CoreumFoundation/crust/znet/infra/targets"
+	"go.uber.org/zap"
+
+	"github.com/tokenize-x/crust/exec"
+	"github.com/tokenize-x/crust/znet/infra/targets"
 )
 
 const covdataDirName = "covdatafiles"

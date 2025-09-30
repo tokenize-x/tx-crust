@@ -1,10 +1,10 @@
 package build
 
 import (
-	"github.com/CoreumFoundation/crust/build/crust"
-	"github.com/CoreumFoundation/crust/build/golang"
-	"github.com/CoreumFoundation/crust/build/lint"
-	"github.com/CoreumFoundation/crust/build/types"
+	"github.com/tokenize-x/crust/build/crust"
+	"github.com/tokenize-x/crust/build/golang"
+	"github.com/tokenize-x/crust/build/lint"
+	"github.com/tokenize-x/crust/build/types"
 )
 
 // Commands is a definition of commands available in build system.

@@ -15,15 +15,15 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/CoreumFoundation/coreum-tools/pkg/must"
+	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
-	"github.com/CoreumFoundation/crust/znet/infra"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/postgres"
-	"github.com/CoreumFoundation/crust/znet/infra/apps/txd"
-	"github.com/CoreumFoundation/crust/znet/infra/targets"
+	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra/apps/postgres"
+	"github.com/tokenize-x/crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/crust/znet/infra/targets"
 )
 
 var (

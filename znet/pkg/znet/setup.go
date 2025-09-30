@@ -4,11 +4,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/crust/znet/infra"
+	"github.com/tokenize-x/crust/znet/infra"
 )
 
 // CmdFactory is a wrapper around cobra RunE.
