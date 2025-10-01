@@ -18,12 +18,10 @@ require (
 	github.com/samber/lo v1.49.1
 	github.com/spf13/cobra v1.9.1
 	github.com/tokenize-x/crust v0.0.0-20250422105139-051d68f6bb18
-	github.com/tokenize-x/tx-chain/v6 v6.0.0-20250421142245-52bdcb2a0560
+	github.com/tokenize-x/tx-chain/v6 v6.0.0-20250930140845-bb230c098c91
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.72.2
 )
-
-replace github.com/tokenize-x/tx-chain/v6 => github.com/CoreumFoundation/tx-core/v6 v6.0.0-20250924170527-c4a6ef9392ac
 
 replace github.com/tokenize-x/crust => ../
 
