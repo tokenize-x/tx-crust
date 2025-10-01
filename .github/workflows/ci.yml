@@ -1,11 +1,11 @@
 name: ci
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   schedule:
-    - cron: '0 1 * * 1' # At 01:00 on Monday
+    - cron: "0 1 * * 1" # At 01:00 on Monday
   workflow_dispatch:
 
 jobs:
@@ -13,10 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ci_step: [
-          "lint",
-          "test",
-        ]
+        ci_step: ["lint", "test"]
         include:
           - ci_step: "lint"
             command: "crust lint"
@@ -32,6 +29,16 @@ jobs:
         with:
           persist-credentials: false
           path: crust
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.TX_CHAIN_PRIVATE_KEY }}
+      - name: Setup tx-chain acccess
+        run: |
+          export GOPRIVATE=github.com/tokenize-x/*,git@tx-chain-private:tokenize-x
+          export GONOSUMDB=github.com/tokenize-x
+          echo -e "${{ secrets.TX_CHAIN_PRIVATE_KEY }}" > ~/.ssh/tx-chain-deploy-key
+          echo -e "Host tx-chain-private\n    HostName github.com\n    User git\n    IdentityFile ~/.ssh/tx-chain-deploy-key\n    IdentitiesOnly yes" >> ~/.ssh/config
+          echo -e "[url \"git@tx-chain-private:tokenize-x\"]\n        insteadOf = \"https://github.com/tokenize-x\"" > ~/.gitconfig
       - name: Set up build system
         run: |
           echo "$(pwd)/crust/bin" >> $GITHUB_PATH
