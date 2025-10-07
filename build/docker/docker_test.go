@@ -3,8 +3,9 @@ package docker
 import (
 	"testing"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/tokenize-x/tx-tools/pkg/logger"
 )
 
 func TestGetTagsForDockerImage(t *testing.T) {
