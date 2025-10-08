@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
+	"github.com/tokenize-x/tx-tools/pkg/must"
 )
 
 // Platform defines platform to install tool on.

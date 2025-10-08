@@ -4,10 +4,10 @@ go 1.24
 
 require (
 	github.com/BurntSushi/toml v1.4.0
-	github.com/CoreumFoundation/coreum-tools v0.4.1-0.20241202115740-dbc6962a4d0a
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.49.1
 	github.com/stretchr/testify v1.10.0
+	github.com/tokenize-x/tx-tools v0.0.0-20251006151522-f6df01ec2033
 	go.uber.org/zap v1.27.0
 	golang.org/x/mod v0.23.0
 )

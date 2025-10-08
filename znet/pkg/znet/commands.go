@@ -12,9 +12,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum-tools/pkg/parallel"
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
 
@@ -23,6 +20,9 @@ import (
 	"github.com/tokenize-x/crust/znet/infra/apps/txd"
 	"github.com/tokenize-x/crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
+	"github.com/tokenize-x/tx-tools/pkg/libexec"
+	"github.com/tokenize-x/tx-tools/pkg/must"
+	"github.com/tokenize-x/tx-tools/pkg/parallel"
 )
 
 var exe = must.String(filepath.EvalSymlinks(must.String(os.Executable())))

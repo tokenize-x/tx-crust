@@ -9,13 +9,13 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	"github.com/pkg/errors"
 
 	"github.com/tokenize-x/crust/znet/infra"
 	"github.com/tokenize-x/crust/znet/infra/apps/txd"
 	"github.com/tokenize-x/crust/znet/infra/targets"
+	"github.com/tokenize-x/tx-tools/pkg/must"
+	"github.com/tokenize-x/tx-tools/pkg/retry"
 )
 
 const (

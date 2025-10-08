@@ -5,7 +5,6 @@ go 1.24
 
 require (
 	cosmossdk.io/math v1.5.3
-	github.com/CoreumFoundation/coreum-tools v0.4.1-0.20241202115740-dbc6962a4d0a
 	github.com/CosmWasm/wasmd v0.60.1
 	github.com/cometbft/cometbft v0.38.17
 	github.com/cosmos/cosmos-sdk v0.53.4
@@ -18,7 +17,8 @@ require (
 	github.com/samber/lo v1.49.1
 	github.com/spf13/cobra v1.9.1
 	github.com/tokenize-x/crust v0.0.0-20250422105139-051d68f6bb18
-	github.com/tokenize-x/tx-chain/v6 v6.0.0-20250930140845-bb230c098c91
+	github.com/tokenize-x/tx-chain/v6 v6.0.0-20251008070942-1a6bf2112978
+	github.com/tokenize-x/tx-tools v0.0.0-20251006151522-f6df01ec2033
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.72.2
 )

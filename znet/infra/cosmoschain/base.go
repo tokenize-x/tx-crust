@@ -11,7 +11,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	cosmosclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -27,6 +26,7 @@ import (
 	"github.com/tokenize-x/crust/znet/pkg/tools"
 	"github.com/tokenize-x/tx-chain/v6/pkg/client"
 	"github.com/tokenize-x/tx-chain/v6/pkg/config"
+	"github.com/tokenize-x/tx-tools/pkg/must"
 )
 
 const dockerEntrypoint = "run.sh"

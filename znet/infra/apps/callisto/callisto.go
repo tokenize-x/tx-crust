@@ -15,8 +15,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
@@ -24,6 +22,8 @@ import (
 	"github.com/tokenize-x/crust/znet/infra/apps/postgres"
 	"github.com/tokenize-x/crust/znet/infra/apps/txd"
 	"github.com/tokenize-x/crust/znet/infra/targets"
+	"github.com/tokenize-x/tx-tools/pkg/must"
+	"github.com/tokenize-x/tx-tools/pkg/retry"
 )
 
 var (
