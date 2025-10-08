@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum-tools/pkg/run"
 	"github.com/pkg/errors"
 
 	"github.com/tokenize-x/crust/build/types"
+	"github.com/tokenize-x/tx-tools/pkg/logger"
+	"github.com/tokenize-x/tx-tools/pkg/must"
+	"github.com/tokenize-x/tx-tools/pkg/run"
 )
 
 const maxStack = 100

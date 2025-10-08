@@ -12,8 +12,6 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	cosmosclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -28,7 +26,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/tokenize-x/crust/znet/infra"
-	txchainhelper "github.com/tokenize-x/crust/znet/infra/apps/bridgexrpl/coreum"
+	txchainhelper "github.com/tokenize-x/crust/znet/infra/apps/bridgexrpl/tx"
 	xrplhelper "github.com/tokenize-x/crust/znet/infra/apps/bridgexrpl/xrpl"
 	"github.com/tokenize-x/crust/znet/infra/apps/txd"
 	"github.com/tokenize-x/crust/znet/infra/apps/xrpl"
@@ -38,6 +36,8 @@ import (
 	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
 	"github.com/tokenize-x/tx-chain/v6/testutil/event"
 	assetfttypes "github.com/tokenize-x/tx-chain/v6/x/asset/ft/types"
+	"github.com/tokenize-x/tx-tools/pkg/logger"
+	"github.com/tokenize-x/tx-tools/pkg/retry"
 )
 
 const (

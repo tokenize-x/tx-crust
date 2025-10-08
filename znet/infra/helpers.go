@@ -8,14 +8,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/logger"
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/tokenize-x/tx-chain/v6/pkg/client"
+	"github.com/tokenize-x/tx-tools/pkg/logger"
+	"github.com/tokenize-x/tx-tools/pkg/must"
+	"github.com/tokenize-x/tx-tools/pkg/retry"
 )
 
 // HealthCheckCapable represents application exposing health check endpoint.

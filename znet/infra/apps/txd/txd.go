@@ -16,8 +16,6 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/CoreumFoundation/coreum-tools/pkg/libexec"
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
 	cometbftcrypto "github.com/cometbft/cometbft/crypto"
 	cbfted25519 "github.com/cometbft/cometbft/crypto/ed25519"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
@@ -46,6 +44,8 @@ import (
 	assetfttypes "github.com/tokenize-x/tx-chain/v6/x/asset/ft/types"
 	"github.com/tokenize-x/tx-chain/v6/x/dex"
 	dextypes "github.com/tokenize-x/tx-chain/v6/x/dex/types"
+	"github.com/tokenize-x/tx-tools/pkg/libexec"
+	"github.com/tokenize-x/tx-tools/pkg/must"
 )
 
 const (

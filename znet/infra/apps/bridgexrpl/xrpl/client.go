@@ -11,9 +11,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	"github.com/pkg/errors"
 	rippledata "github.com/rubblelabs/ripple/data"
+
+	"github.com/tokenize-x/tx-tools/pkg/retry"
 )
 
 type rpcError struct {

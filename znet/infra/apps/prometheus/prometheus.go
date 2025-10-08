@@ -12,8 +12,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/CoreumFoundation/coreum-tools/pkg/must"
-	"github.com/CoreumFoundation/coreum-tools/pkg/retry"
 	"github.com/pkg/errors"
 
 	"github.com/tokenize-x/crust/znet/infra"
@@ -21,6 +19,8 @@ import (
 	"github.com/tokenize-x/crust/znet/infra/apps/faucet"
 	"github.com/tokenize-x/crust/znet/infra/apps/hermes"
 	"github.com/tokenize-x/crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/tx-tools/pkg/must"
+	"github.com/tokenize-x/tx-tools/pkg/retry"
 )
 
 var (
