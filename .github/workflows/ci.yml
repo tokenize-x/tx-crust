@@ -42,8 +42,8 @@ jobs:
           echo -e "${{ secrets.TX_TOOLS_PRIVATE_KEY }}" > ~/.ssh/tx-tools-deploy-key
           echo -e "Host tx-chain-private\n    HostName github.com\n    User git\n    IdentityFile ~/.ssh/tx-chain-deploy-key\n    IdentitiesOnly yes" >> ~/.ssh/config
           echo -e "Host tx-tools-private\n    HostName github.com\n    User git\n    IdentityFile ~/.ssh/tx-tools-deploy-key\n    IdentitiesOnly yes" >> ~/.ssh/config
-          echo -e "[url \"git@tx-chain-private:tokenize-x/tx-chain\"]\n        insteadOf = \"https://github.com/tokenize-x/tx-chain\"" > ~/.gitconfig
-          echo -e "[url \"git@tx-tools-private:tokenize-x/tx-tools\"]\n        insteadOf = \"https://github.com/tokenize-x/tx-tools\"" > ~/.gitconfig
+          echo -e "[url \"git@tx-chain-private:tokenize-x/tx-chain\"]\n        insteadOf = \"https://github.com/tokenize-x/tx-chain\"" >> ~/.gitconfig
+          echo -e "[url \"git@tx-tools-private:tokenize-x/tx-tools\"]\n        insteadOf = \"https://github.com/tokenize-x/tx-tools\"" >> ~/.gitconfig
       - name: Set up build system
         run: |
           echo "$(pwd)/crust/bin" >> $GITHUB_PATH
