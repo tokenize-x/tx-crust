@@ -17,7 +17,7 @@ Moreover, we are much better go developers than bash ones.
 So here is the simple tool written in go which helps us in our daily work.
 
 ## Shell configuration
-It is assumed here that cloned `crust` repository exists in `$HOME/crust`.
+It is assumed here that cloned `tx-crust` repository exists in `$HOME/tx-crust`.
 If you store it elsewhere, adjust paths accordingly.
 
 Configuration for two shells is provided: `bash` and `zsh`.
@@ -28,13 +28,13 @@ Once configuration is done log out from your session and log in again to apply c
 Add this line at the end of `~/.bash_profile` file:
 
 ```
-PATH="$HOME/crust/bin:$PATH"
+PATH="$HOME/tx-crust/bin:$PATH"
 ```
 
-If you want to use autocompletion feature of `crust` add this line at the end of `~/.bashrc` file:
+If you want to use autocompletion feature of `tx-crust` add this line at the end of `~/.bashrc` file:
 
 ```
-complete -o nospace -C crust crust 
+complete -o nospace -C txcrust txcrust 
 ```
 
 ### ZSH
@@ -42,7 +42,7 @@ complete -o nospace -C crust crust
 Add this line at the end of `~/.zprofile` file:
 
 ```
-PATH="$HOME/crust/bin:$PATH"
+PATH="$HOME/tx-crust/bin:$PATH"
 ```
 
 
@@ -51,7 +51,7 @@ PATH="$HOME/crust/bin:$PATH"
 Run
 
 ```
-$ crust setup
+$ txcrust setup
 ```
 
 to install all the essential tools we use.
@@ -59,11 +59,11 @@ to install all the essential tools we use.
 Whenever tool downloads or builds binaries it puts them inside [bin](../bin) directory so they are
 easily callable from console.
 
-## `crust` command
+## `txcrust` command
 
-`crust` command is used to execute operations. you may pass one or more operations to it:
+`txcrust` command is used to execute operations. you may pass one or more operations to it:
 
-`crust <op-1> <op-2> ... <op-n>`
+`txcrust <op-1> <op-2> ... <op-n>`
 
 Here is the list of operations supported at the moment:
 
@@ -77,24 +77,24 @@ If you want to inspect source code of operations, go to [build/index.go](index.g
 You may run operations one by one:
 
 ```
-$ crust lint
-$ crust test
+$ txcrust lint
+$ txcrust test
 ```
 
 or together:
 
 ```
-$ crust lint test
+$ txcrust lint test
 ```
 
 Running operations together is better because if they internally have common dependencies, each of them will
-be executed once. Moreover, each execution of `crust` may compile code. By running more operations at once
+be executed once. Moreover, each execution of `txcrust` may compile code. By running more operations at once
 you just save your time. In all the cases operations are executed sequentially.
 
-To remove all the caches and docker containers and images used by crust run:
+To remove all the caches and docker containers and images used by txcrust run:
 
 ```
-crust remove
+txcrust remove
 ```
 
 ## Common environment

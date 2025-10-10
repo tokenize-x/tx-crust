@@ -22,7 +22,7 @@ import (
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 
-	"github.com/tokenize-x/crust/build/types"
+	"github.com/tokenize-x/tx-crust/build/types"
 	"github.com/tokenize-x/tx-tools/pkg/libexec"
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 	"github.com/tokenize-x/tx-tools/pkg/must"
@@ -335,7 +335,7 @@ func (bt BinaryTool) install(ctx context.Context, platform TargetPlatform) (retE
 			expectedChecksum, actualChecksum, source.URL)
 	}
 
-	dstDir := filepath.Join(toolDir, "crust")
+	dstDir := filepath.Join(toolDir, "tx-crust")
 	for dst, src := range lo.Assign(bt.Binaries, source.Binaries) {
 		srcPath := filepath.Join(toolDir, src)
 
@@ -436,7 +436,7 @@ func (gpt GoPackageTool) Ensure(ctx context.Context, platform TargetPlatform) er
 			return err
 		}
 
-		dstPath := filepath.Join(toolDir, "crust", dst)
+		dstPath := filepath.Join(toolDir, "tx-crust", dst)
 		dstPathChecksum := dstPath + ":" + binChecksum
 
 		if err := os.Remove(dstPath); err != nil && !os.IsNotExist(err) {
@@ -600,7 +600,7 @@ func (ri RustInstaller) install(ctx context.Context, platform TargetPlatform) (r
 			return err
 		}
 
-		dstPath := filepath.Join(toolDir, "crust", binary)
+		dstPath := filepath.Join(toolDir, "tx-crust", binary)
 		dstPathChecksum := dstPath + ":" + binChecksum
 		if err := os.Remove(dstPath); err != nil && !os.IsNotExist(err) {
 			return errors.WithStack(err)
@@ -711,7 +711,7 @@ func (ct CargoTool) Ensure(ctx context.Context, platform TargetPlatform) error {
 			return err
 		}
 
-		dstPath := filepath.Join(toolDir, "crust", binPath)
+		dstPath := filepath.Join(toolDir, "tx-crust", binPath)
 		dstPathChecksum := dstPath + ":" + binChecksum
 
 		if err := os.Remove(dstPath); err != nil && !os.IsNotExist(err) {
@@ -784,7 +784,7 @@ func linkTool(tool Tool, platform TargetPlatform, binaries ...string) error {
 			strings.Repeat("../", strings.Count(dst, "/")+1),
 			"downloads",
 			fmt.Sprintf("%s-%s", tool.GetName(), tool.GetVersion()),
-			"crust",
+			"tx-crust",
 			dst,
 		)
 		if err := os.MkdirAll(filepath.Dir(dst), 0o700); err != nil {
@@ -1027,7 +1027,7 @@ func unpackZip(reader io.Reader, path string) error {
 
 // CacheDir returns path to cache directory.
 func CacheDir() string {
-	return must.String(os.UserCacheDir()) + "/crust"
+	return must.String(os.UserCacheDir()) + "/tx-crust"
 }
 
 func toolDir(tool Tool, platform TargetPlatform) string {
@@ -1049,7 +1049,7 @@ func shouldReinstall(t Tool, platform TargetPlatform, src, dst string) bool {
 		return true
 	}
 
-	dstPath, err := filepath.Abs(filepath.Join(toolDir, "crust", dst))
+	dstPath, err := filepath.Abs(filepath.Join(toolDir, "tx-crust", dst))
 	if err != nil {
 		return true
 	}
@@ -1092,7 +1092,7 @@ func shouldReinstall(t Tool, platform TargetPlatform, src, dst string) bool {
 }
 
 func shouldRelink(tool Tool, platform TargetPlatform, dst string) (bool, error) {
-	srcPath := filepath.Join(toolDir(tool, platform), "crust", dst)
+	srcPath := filepath.Join(toolDir(tool, platform), "tx-crust", dst)
 
 	realSrcPath, err := filepath.EvalSymlinks(srcPath)
 	if err != nil {
@@ -1200,7 +1200,7 @@ func PlatformRootPath(platform TargetPlatform) string {
 	return filepath.Join(CacheDir(), "tools", platform.String())
 }
 
-// VersionedRootPath returns the path to the root directory of crust version.
+// VersionedRootPath returns the path to the root directory of tx-crust version.
 func VersionedRootPath(platform TargetPlatform) string {
 	return filepath.Join(PlatformRootPath(platform), Version())
 }
@@ -1220,9 +1220,9 @@ func Ensure(ctx context.Context, toolName Name, platform TargetPlatform) error {
 	return tool.Ensure(ctx, platform)
 }
 
-// Version returns crust module version used to import this module in go.mod of the repository.
+// Version returns tx-crust module version used to import this module in go.mod of the repository.
 func Version() string {
-	crustModule := CrustModule()
+	txCrustModule := TXCrustModule()
 
 	bi, ok := debug.ReadBuildInfo()
 	if !ok {
@@ -1230,7 +1230,7 @@ func Version() string {
 	}
 
 	for _, m := range append([]*debug.Module{&bi.Main}, bi.Deps...) {
-		if m.Path != crustModule {
+		if m.Path != txCrustModule {
 			continue
 		}
 		if m.Replace != nil {
@@ -1238,8 +1238,8 @@ func Version() string {
 		}
 
 		// This happens in two cases:
-		// - building is done in crust repository
-		// - any other repository has `go.mod` modified to replace crust with the local source code
+		// - building is done in tx-crust repository
+		// - any other repository has `go.mod` modified to replace tx-crust with the local source code
 		if m.Version == "(devel)" {
 			return "devel"
 		}
@@ -1247,17 +1247,17 @@ func Version() string {
 		return m.Version
 	}
 
-	panic("impossible condition: crust module not found")
+	panic("impossible condition: tx-crust module not found")
 }
 
-// CrustModule returns the name of crust module.
-func CrustModule() string {
+// TXCrustModule returns the name of tx-crust module.
+func TXCrustModule() string {
 	//nolint:dogsled // yes, there are 3 blanks and what?
 	_, file, _, _ := runtime.Caller(0)
-	crustModule := strings.Join(strings.Split(file, "/")[:3], "/")
-	index := strings.Index(crustModule, "@")
+	txCrustModule := strings.Join(strings.Split(file, "/")[:3], "/")
+	index := strings.Index(txCrustModule, "@")
 	if index > 0 {
-		crustModule = crustModule[:index]
+		txCrustModule = txCrustModule[:index]
 	}
-	return crustModule
+	return txCrustModule
 }

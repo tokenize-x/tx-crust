@@ -6,14 +6,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 
-	"github.com/tokenize-x/crust/znet/infra"
-	"github.com/tokenize-x/crust/znet/infra/apps/callisto"
-	"github.com/tokenize-x/crust/znet/infra/apps/faucet"
-	"github.com/tokenize-x/crust/znet/infra/apps/gaiad"
-	"github.com/tokenize-x/crust/znet/infra/apps/hermes"
-	"github.com/tokenize-x/crust/znet/infra/apps/osmosis"
-	"github.com/tokenize-x/crust/znet/infra/apps/txd"
-	"github.com/tokenize-x/crust/znet/infra/apps/xrpl"
+	"github.com/tokenize-x/tx-crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/callisto"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/faucet"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/gaiad"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/hermes"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/osmosis"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/xrpl"
 )
 
 // AppPrefix constants are the prefixes used in the app factories.

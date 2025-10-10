@@ -1,13 +1,13 @@
-package crust
+package txcrust
 
 import (
 	"context"
 	"os"
 	"path/filepath"
 
-	"github.com/tokenize-x/crust/build/golang"
-	"github.com/tokenize-x/crust/build/tools"
-	"github.com/tokenize-x/crust/build/types"
+	"github.com/tokenize-x/tx-crust/build/golang"
+	"github.com/tokenize-x/tx-crust/build/tools"
+	"github.com/tokenize-x/tx-crust/build/types"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 )
 
@@ -30,8 +30,8 @@ func BuildZNet(ctx context.Context, deps types.DepsFunc) error {
 	})
 }
 
-// BuildCrustZNet builds znet.
-func BuildCrustZNet(ctx context.Context, deps types.DepsFunc) error {
+// BuildTXCrustZNet builds znet.
+func BuildTXCrustZNet(ctx context.Context, deps types.DepsFunc) error {
 	return golang.Build(ctx, deps, golang.BinaryBuildConfig{
 		TargetPlatform: tools.TargetPlatformLocal,
 		PackagePath:    "znet/cmd/znet",

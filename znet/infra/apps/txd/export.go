@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-tools/pkg/libexec"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 )

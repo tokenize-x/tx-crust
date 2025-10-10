@@ -15,11 +15,11 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
 
-	"github.com/tokenize-x/crust/znet/infra"
-	"github.com/tokenize-x/crust/znet/infra/apps"
-	"github.com/tokenize-x/crust/znet/infra/apps/txd"
-	"github.com/tokenize-x/crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
+	"github.com/tokenize-x/tx-crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/tx-crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-tools/pkg/libexec"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 	"github.com/tokenize-x/tx-tools/pkg/parallel"
@@ -59,11 +59,11 @@ func Activate(ctx context.Context, configF *infra.ConfigFactory) error {
 	shellCmd := osexec.Command(shell)
 	shellCmd.Env = append(os.Environ(),
 		"PATH="+config.WrapperDir+":"+os.Getenv("PATH"),
-		"CRUST_ZNET_ENV="+configF.EnvName,
-		"CRUST_ZNET_PROFILES="+strings.Join(configF.Profiles, ","),
-		"CRUST_ZNET_TXD_VERSION="+configF.TXdVersion,
-		"CRUST_ZNET_HOME="+configF.HomeDir,
-		"CRUST_ZNET_ROOT_DIR="+configF.RootDir,
+		"TX_CRUST_ZNET_ENV="+configF.EnvName,
+		"TX_CRUST_ZNET_PROFILES="+strings.Join(configF.Profiles, ","),
+		"TX_CRUST_ZNET_TXD_VERSION="+configF.TXdVersion,
+		"TX_CRUST_ZNET_HOME="+configF.HomeDir,
+		"TX_CRUST_ZNET_ROOT_DIR="+configF.RootDir,
 	)
 	if promptVar != "" {
 		shellCmd.Env = append(shellCmd.Env, promptVar)

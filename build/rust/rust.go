@@ -3,8 +3,8 @@ package rust
 import (
 	"context"
 
-	"github.com/tokenize-x/crust/build/tools"
-	"github.com/tokenize-x/crust/build/types"
+	"github.com/tokenize-x/tx-crust/build/tools"
+	"github.com/tokenize-x/tx-crust/build/types"
 )
 
 // EnsureRust ensures that rust is available.
