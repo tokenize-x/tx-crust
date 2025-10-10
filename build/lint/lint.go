@@ -6,9 +6,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/tokenize-x/crust/build/git"
-	"github.com/tokenize-x/crust/build/golang"
-	"github.com/tokenize-x/crust/build/types"
+	"github.com/tokenize-x/tx-crust/build/git"
+	"github.com/tokenize-x/tx-crust/build/golang"
+	"github.com/tokenize-x/tx-crust/build/types"
 )
 
 const (

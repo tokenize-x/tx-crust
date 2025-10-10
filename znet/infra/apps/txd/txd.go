@@ -33,10 +33,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 
-	"github.com/tokenize-x/crust/build/tools"
-	"github.com/tokenize-x/crust/znet/infra"
-	"github.com/tokenize-x/crust/znet/infra/cosmoschain"
-	"github.com/tokenize-x/crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-chain/v6/pkg/client"
 	txchainconfig "github.com/tokenize-x/tx-chain/v6/pkg/config"
 	txchainconstant "github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
@@ -44,6 +40,10 @@ import (
 	assetfttypes "github.com/tokenize-x/tx-chain/v6/x/asset/ft/types"
 	"github.com/tokenize-x/tx-chain/v6/x/dex"
 	dextypes "github.com/tokenize-x/tx-chain/v6/x/dex/types"
+	"github.com/tokenize-x/tx-crust/build/tools"
+	"github.com/tokenize-x/tx-crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra/cosmoschain"
+	"github.com/tokenize-x/tx-crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-tools/pkg/libexec"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 )

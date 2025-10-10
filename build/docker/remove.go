@@ -16,7 +16,7 @@ import (
 	"github.com/tokenize-x/tx-tools/pkg/parallel"
 )
 
-// Remove removes all the docker components used by crust.
+// Remove removes all the docker components used by tx-crust.
 func Remove(ctx context.Context) error {
 	if err := removeContainers(ctx); err != nil {
 		return err
@@ -56,12 +56,12 @@ func removeImages(ctx context.Context) error {
 }
 
 func removeBuilder(ctx context.Context) error {
-	inspectCmd := exec.Command("docker", "buildx", "inspect", "crust")
+	inspectCmd := exec.Command("docker", "buildx", "inspect", "tx-crust")
 	inspectCmd.Stderr = io.Discard
 	err := libexec.Exec(ctx, inspectCmd)
 
 	if err == nil {
-		return libexec.Exec(ctx, noStdout(exec.Command("docker", "buildx", "rm", "crust")))
+		return libexec.Exec(ctx, noStdout(exec.Command("docker", "buildx", "rm", "tx-crust")))
 	}
 
 	return nil

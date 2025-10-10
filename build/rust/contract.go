@@ -16,8 +16,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/mod/sumdb/dirhash"
 
-	"github.com/tokenize-x/crust/build/tools"
-	"github.com/tokenize-x/crust/build/types"
+	"github.com/tokenize-x/tx-crust/build/tools"
+	"github.com/tokenize-x/tx-crust/build/types"
 	"github.com/tokenize-x/tx-tools/pkg/libexec"
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 )

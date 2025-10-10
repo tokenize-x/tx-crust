@@ -17,11 +17,11 @@ import (
 	"github.com/prometheus/common/expfmt"
 	"github.com/samber/lo"
 
-	"github.com/tokenize-x/crust/znet/infra"
-	"github.com/tokenize-x/crust/znet/infra/apps/txd"
-	"github.com/tokenize-x/crust/znet/infra/cosmoschain"
-	"github.com/tokenize-x/crust/znet/infra/targets"
 	txchainconstant "github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
+	"github.com/tokenize-x/tx-crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/tx-crust/znet/infra/cosmoschain"
+	"github.com/tokenize-x/tx-crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 	"github.com/tokenize-x/tx-tools/pkg/retry"
 )

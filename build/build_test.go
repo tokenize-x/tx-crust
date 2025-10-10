@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tokenize-x/crust/build/types"
+	"github.com/tokenize-x/tx-crust/build/types"
 )
 
 type report map[int]string

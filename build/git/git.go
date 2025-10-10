@@ -144,7 +144,7 @@ func CloneRemoteCommit(ctx context.Context, repoURL, commitID, dstDir string) er
 		return err
 	}
 
-	branch := "crust-build/" + commitID
+	branch := "tx-crust-build/" + commitID
 
 	// Prepare common commands
 	cmdBranchFromCommitID := exec.Command("git", "branch", branch, commitID)

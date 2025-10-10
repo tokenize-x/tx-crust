@@ -25,7 +25,7 @@ var (
 
 // CacheDir returns path to cache directory.
 func CacheDir() string {
-	return must.String(os.UserCacheDir()) + "/crust"
+	return must.String(os.UserCacheDir()) + "/tx-crust"
 }
 
 // BinariesRootPath returns the root path of cached binaries.

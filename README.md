@@ -1,10 +1,10 @@
-# crust
+# TX Crust
 
-`crust` library helps you build and run all the applications needed for development and testing.
+`tx-crust` library helps you build and run all the applications needed for development and testing.
 
 ## Prerequisites
 
-To use `crust` you need:
+To use `tx-crust` you need:
 
 - `go 1.18` or newer
 - `gcc`
@@ -20,7 +20,7 @@ Install them manually before continuing.
 
 ```
 cd $TOKENIZEX_PATH
-git clone https://github.com/tokenize-x/crust
+git clone https://github.com/tokenize-x/tx-crust
 git clone https://github.com/tokenize-x/tx-chain
 ```
 
@@ -34,7 +34,7 @@ git clone https://github.com/tokenize-x/callisto
 2. Not required but recommended: Add bin directory of all projects to your `PATH` environment variable:
 
 ```
-export PATH="$TOKENIZEX_PATH/crust/bin:$TOKENIZEX_PATH/tx-chain/bin:$TOKENIZEX_PATH/faucet/bin:$TOKENIZEX_PATH/callisto/bin:$PATH"
+export PATH="$TOKENIZEX_PATH/tx-crust/bin:$TOKENIZEX_PATH/tx-chain/bin:$TOKENIZEX_PATH/faucet/bin:$TOKENIZEX_PATH/callisto/bin:$PATH"
 ```
 
 3. Compile all the required binaries and docker images:
@@ -50,14 +50,14 @@ $TOKENIZEX_PATH/faucet/bin/faucet-builder build images
 $TOKENIZEX_PATH/callisto/bin/callisto-builder build images
 ```
 
-After the command `tx-chain-builder build images` completes the symbolic links should be created to the crust `bin` and `.cache` directory using the following commands.
+After the command `tx-chain-builder build images` completes the symbolic links should be created to the tx-crust `bin` and `.cache` directory using the following commands.
 
 ```sh
-ln -s $TOKENIZEX_PATH/tx-chain/bin/.cache/txd $TOKENIZEX_PATH/crust/bin/.cache/
+ln -s $TOKENIZEX_PATH/tx-chain/bin/.cache/txd $TOKENIZEX_PATH/tx-crust/bin/.cache/
 ```
 
 ```sh
-ln -s $TOKENIZEX_PATH/tx-chain/bin/txd $TOKENIZEX_PATH/crust/bin/txd
+ln -s $TOKENIZEX_PATH/tx-chain/bin/txd $TOKENIZEX_PATH/tx-crust/bin/txd
 ```
 
 _Note: You need to run respective builder `build images` after you modify that project.
@@ -71,13 +71,13 @@ For example if you do a modification in tx-chain project, you need to run `tx-ch
 First is direct where you execute command directly:
 
 ```
-$ crust znet <command> [flags]
+$ txcrust znet <command> [flags]
 ```
 
 Second one is by entering the znet-environment:
 
 ```
-$ crust znet [flags]
+$ txcrust znet [flags]
 (<environment-name>) [znet] $ <command>
 ```
 
@@ -88,7 +88,7 @@ The second method saves some typing.
 All the flags are optional. Execute
 
 ```
-$ crust znet <command> --help
+$ txcrust znet <command> --help
 ```
 
 to see what the default values are.
@@ -117,34 +117,34 @@ NOTE: `1txd`, `3txd`, `5txd` and `devnet` are mutually exclusive.
 To start fully-featured set you may run:
 
 ```
-$ crust znet start --profiles=3txd,faucet,explorer,monitoring
+$ txcrust znet start --profiles=3txd,faucet,explorer,monitoring
 ```
 
 **NOTE**: Notice from here on out, if you already have a znet env started with a set profiles,
 and you want to start znet with a different set of profiles, you need to remove previous znet env
-with `crust znet remove` and only then you can start the new env.
+with `txcrust znet remove` and only then you can start the new env.
 
 ### --txd-version
 
 The `--txd-version` allows to start the `znet` with any previously released version.
 
 ```
-$ crust znet start --txd-version=v1.0.0 --profiles=3txd,faucet,explorer,monitoring
+$ txcrust znet start --txd-version=v1.0.0 --profiles=3txd,faucet,explorer,monitoring
 ```
 
 **NOTE**: if you already have a znet env started with different profiles, you need to remove it
-with `crust znet remove` so you can start a new environment.
+with `txcrust znet remove` so you can start a new environment.
 
 Also, it's possible to execute tests with any previously released version.
 
 ```
-$ crust znet test --txd-version=v1.0.0 --test-groups=tx-chain-upgrade
+$ txcrust znet test --txd-version=v1.0.0 --test-groups=tx-chain-upgrade
 ```
 
 ## Commands
 
 In the environment some wrapper scripts for `znet` are generated automatically to make your life easier.
-Each such `<command>` calls `crust znet <command>`.
+Each such `<command>` calls `txcrust znet <command>`.
 
 Available commands are:
 
@@ -161,7 +161,7 @@ Basic workflow may look like this:
 
 ```
 # Enter the environment:
-$ crust znet
+$ txcrust znet
 (znet) [znet] $
 
 # Start applications
@@ -186,7 +186,7 @@ $
 After entering and starting environment:
 
 ```
-$ crust znet
+$ txcrust znet
 (znet) [znet] $ start
 ```
 
@@ -228,7 +228,7 @@ Take the address the out put of the command above, you will use it in the next c
 You may run integration tests directly:
 
 ```
-$ crust znet test
+$ txcrust znet test
 ```
 
 Tests run on top of `--profiles=integration-tests`.
@@ -236,7 +236,7 @@ Tests run on top of `--profiles=integration-tests`.
 It's also possible to enter the environment first, and run tests from there:
 
 ```
-$ crust znet
+$ txcrust znet
 (znet) [znet] $ start --profiles=integration-tests
 (znet) [znet] $ tests
 
@@ -251,7 +251,7 @@ After tests complete environment is still running so if something went wrong you
 If you want to manually remove all the data created by `znet` do this:
 
 - use `docker ps -a`, `docker stop <container-id>` and `docker rm <container-id>` to delete related running containers
-- run `rm -rf ~/.cache/crust/znet` to remove all the files created by `znet`
+- run `rm -rf ~/.cache/tx-crust/znet` to remove all the files created by `znet`
 
 ## Monitoring
 
