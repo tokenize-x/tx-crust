@@ -14,9 +14,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/tokenize-x/crust/znet/infra"
-	"github.com/tokenize-x/crust/znet/infra/apps/prometheus"
-	"github.com/tokenize-x/crust/znet/infra/apps/txd"
+	"github.com/tokenize-x/tx-crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/prometheus"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/txd"
 )
 
 var (

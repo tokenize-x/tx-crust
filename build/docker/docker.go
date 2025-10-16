@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/tokenize-x/crust/build/git"
-	"github.com/tokenize-x/crust/build/tools"
+	"github.com/tokenize-x/tx-crust/build/git"
+	"github.com/tokenize-x/tx-crust/build/tools"
 	"github.com/tokenize-x/tx-tools/pkg/libexec"
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 )
@@ -24,10 +24,10 @@ const (
 	UbuntuImage = "ubuntu:24.04"
 )
 
-// Label used to tag docker resources created by crust.
+// Label used to tag docker resources created by tx-crust.
 const (
-	LabelKey   = "com.coreum.crust"
-	LabelValue = "crust"
+	LabelKey   = "com.tokenize-x.tx-crust"
+	LabelValue = "tx-crust"
 )
 
 // Action is the action to take after building the image.
@@ -125,7 +125,7 @@ func getDockerBuildParams(ctx context.Context, input dockerBuildParamsInput) []s
 	params := []string{
 		"buildx",
 		"build",
-		"--builder", "crust",
+		"--builder", "tx-crust",
 		"--label", LabelKey + "=" + LabelValue,
 	}
 
@@ -170,7 +170,7 @@ func getDockerBuildParams(ctx context.Context, input dockerBuildParamsInput) []s
 }
 
 func ensureBuilder(ctx context.Context) error {
-	inspectCmd := exec.Command("docker", "buildx", "inspect", "crust")
+	inspectCmd := exec.Command("docker", "buildx", "inspect", "tx-crust")
 	inspectCmd.Stderr = io.Discard
 	err := libexec.Exec(ctx, inspectCmd)
 
@@ -179,5 +179,5 @@ func ensureBuilder(ctx context.Context) error {
 	}
 
 	return libexec.Exec(ctx, exec.Command("docker",
-		"buildx", "create", "--name", "crust", "--driver", "docker-container", "--bootstrap"))
+		"buildx", "create", "--name", "tx-crust", "--driver", "docker-container", "--bootstrap"))
 }

@@ -1,10 +1,10 @@
 package blockexplorer
 
 import (
-	"github.com/tokenize-x/crust/znet/infra/apps/bigdipper"
-	"github.com/tokenize-x/crust/znet/infra/apps/callisto"
-	"github.com/tokenize-x/crust/znet/infra/apps/hasura"
-	"github.com/tokenize-x/crust/znet/infra/apps/postgres"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/bigdipper"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/callisto"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/hasura"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/postgres"
 )
 
 // DefaultPorts are the default ports applications building block explorer listen on.

@@ -23,10 +23,10 @@ import (
 	"github.com/samber/lo"
 	"go.uber.org/zap"
 
-	"github.com/tokenize-x/crust/build/docker"
-	"github.com/tokenize-x/crust/build/git"
-	"github.com/tokenize-x/crust/build/tools"
-	"github.com/tokenize-x/crust/build/types"
+	"github.com/tokenize-x/tx-crust/build/docker"
+	"github.com/tokenize-x/tx-crust/build/git"
+	"github.com/tokenize-x/tx-crust/build/tools"
+	"github.com/tokenize-x/tx-crust/build/types"
 	"github.com/tokenize-x/tx-tools/pkg/libexec"
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 	"github.com/tokenize-x/tx-tools/pkg/must"
@@ -82,7 +82,7 @@ type TestConfig struct {
 }
 
 // env gets environment variables set in the system excluding Go env vars that
-// causes conflict with the build tools used by crust. For example having
+// causes conflict with the build tools used by tx-crust. For example having
 // the GOROOT and GOPATH that point to another version of Go, build binaries
 // with incompatible Go version that fails to run properly.
 func env() []string {
@@ -204,7 +204,7 @@ func buildInDocker(ctx context.Context, config BinaryBuildConfig) error {
 		return errors.WithStack(err)
 	}
 
-	args, envs, err := buildArgsAndEnvs(config, filepath.Join("/crust-cache", tools.Version(), "lib"))
+	args, envs, err := buildArgsAndEnvs(config, filepath.Join("/tx-crust-cache", tools.Version(), "lib"))
 	if err != nil {
 		return err
 	}
@@ -215,12 +215,12 @@ func buildInDocker(ctx context.Context, config BinaryBuildConfig) error {
 		"-v", modulePath + ":" + dockerRepoDir,
 		"-v", outPath + ":/out",
 		"-v", goPath + ":/go",
-		"-v", cacheDir + ":/crust-cache",
+		"-v", cacheDir + ":/tx-crust-cache",
 		"--env", "GOPATH=/go",
-		"--env", "GOCACHE=/crust-cache/go-build",
+		"--env", "GOCACHE=/tx-crust-cache/go-build",
 		"--workdir", workDir,
 		"--user", fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
-		"--name", "crust-build-" + filepath.Base(config.PackagePath) + "-" + hex.EncodeToString(nameSuffix),
+		"--name", "tx-crust-build-" + filepath.Base(config.PackagePath) + "-" + hex.EncodeToString(nameSuffix),
 		"--entrypoint", "go", // override default goreleaser
 	}
 
@@ -609,13 +609,13 @@ func findModulePath(ctx context.Context) (string, error) {
 }
 
 func findMainFile() string {
-	crustModule := tools.CrustModule()
+	txCrustModule := tools.TXCrustModule()
 	for i := 1; ; i++ {
 		_, file, _, ok := runtime.Caller(i)
 		if !ok || strings.HasPrefix(file, "runtime/") {
 			return ""
 		}
-		if !strings.HasPrefix(file, crustModule) {
+		if !strings.HasPrefix(file, txCrustModule) {
 			return file
 		}
 	}

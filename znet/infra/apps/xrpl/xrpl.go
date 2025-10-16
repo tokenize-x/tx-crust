@@ -16,8 +16,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/tokenize-x/crust/znet/infra"
-	"github.com/tokenize-x/crust/znet/infra/targets"
+	"github.com/tokenize-x/tx-crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 	"github.com/tokenize-x/tx-tools/pkg/retry"
 )

@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 )
 

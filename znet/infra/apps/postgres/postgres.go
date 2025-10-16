@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/pkg/errors"
 
-	"github.com/tokenize-x/crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-tools/pkg/retry"
 )
 

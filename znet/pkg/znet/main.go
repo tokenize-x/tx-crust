@@ -10,8 +10,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/tokenize-x/crust/znet/infra"
-	"github.com/tokenize-x/crust/znet/infra/apps"
+	"github.com/tokenize-x/tx-crust/znet/infra"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps"
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 	"github.com/tokenize-x/tx-tools/pkg/run"
@@ -50,13 +50,13 @@ func rootCmd(ctx context.Context, configF *infra.ConfigFactory, cmdF *CmdFactory
 	rootCmd.PersistentFlags().StringVar(
 		&configF.EnvName,
 		"env",
-		defaultString("CRUST_ZNET_ENV", "znet"),
+		defaultString("TX_CRUST_ZNET_ENV", "znet"),
 		"Name of the environment to run in",
 	)
 	rootCmd.PersistentFlags().StringVar(
 		&configF.HomeDir,
 		"home",
-		defaultString("CRUST_ZNET_HOME", must.String(os.UserCacheDir())+"/crust/znet"),
+		defaultString("TX_CRUST_ZNET_HOME", must.String(os.UserCacheDir())+"/tx-crust/znet"),
 		"Directory where all files created automatically by znet are stored",
 	)
 	addRootDirFlag(rootCmd, configF)
@@ -129,7 +129,7 @@ func addRootDirFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
 	cmd.Flags().StringVar(
 		&configF.RootDir,
 		"root-dir",
-		defaultString("CRUST_ZNET_ROOT_DIR", repoRoot()),
+		defaultString("TX_CRUST_ZNET_ROOT_DIR", repoRoot()),
 		"Path to directory where current repository exists",
 	)
 }
@@ -138,13 +138,13 @@ func addProfileFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
 	cmd.Flags().StringSliceVar(
 		&configF.Profiles,
 		"profiles",
-		defaultStrings("CRUST_ZNET_PROFILES", apps.DefaultProfiles()),
+		defaultStrings("TX_CRUST_ZNET_PROFILES", apps.DefaultProfiles()),
 		"List of application profiles to deploy: "+strings.Join(apps.Profiles(), " | "),
 	)
 }
 
 func addTimeoutCommitFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
-	defaultTimeoutCommitString := defaultString("CRUST_ZNET_TIMEOUT_COMMIT", "0s")
+	defaultTimeoutCommitString := defaultString("TX_CRUST_ZNET_TIMEOUT_COMMIT", "0s")
 	defaultTimeoutCommit, err := time.ParseDuration(defaultTimeoutCommitString)
 	if err != nil {
 		panic(errors.Errorf("failed to covert default timeout commit to duration, err:%s", err))
@@ -156,7 +156,7 @@ func addTXdVersionFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
 	cmd.Flags().StringVar(
 		&configF.TXdVersion,
 		"txd-version",
-		defaultString("CRUST_ZNET_TXD_VERSION", ""),
+		defaultString("TX_CRUST_ZNET_TXD_VERSION", ""),
 		"The version of the binary to be used for deployment",
 	)
 }
@@ -165,7 +165,7 @@ func addCoverageOutputFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
 	cmd.Flags().StringVar(
 		&configF.CoverageOutputFile,
 		"coverage-output",
-		defaultString("CRUST_ZNET_COVERAGE_OUTPUT",
+		defaultString("TX_CRUST_ZNET_COVERAGE_OUTPUT",
 			filepath.Clean(filepath.Join(configF.RootDir, "coverage/coreum-integration-tests-modules"))),
 		"Output path for coverage data in text format",
 	)
@@ -174,7 +174,7 @@ func addCoverageOutputFlag(cmd *cobra.Command, configF *infra.ConfigFactory) {
 func repoRoot() string {
 	currentBinaryPath := must.String(filepath.EvalSymlinks(must.String(os.Executable())))
 
-	// to detect crust repo root we go 3 levels up.
+	// to detect tx-crust repo root we go 3 levels up.
 	return filepath.Clean(filepath.Join(currentBinaryPath, "../../.."))
 }
 

@@ -1,4 +1,4 @@
-module github.com/tokenize-x/crust
+module github.com/tokenize-x/tx-crust
 
 go 1.24
 
