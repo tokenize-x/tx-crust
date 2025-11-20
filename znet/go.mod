@@ -5,7 +5,7 @@ go 1.24
 
 require (
 	cosmossdk.io/math v1.5.3
-	github.com/CosmWasm/wasmd v0.60.1
+	github.com/CosmWasm/wasmd v0.60.2
 	github.com/cometbft/cometbft v0.38.17
 	github.com/cosmos/cosmos-sdk v0.53.4
 	github.com/fsnotify/fsnotify v1.9.0
@@ -16,7 +16,7 @@ require (
 	github.com/rubblelabs/ripple v0.0.0-20240109131116-f99dee0aa0f3
 	github.com/samber/lo v1.49.1
 	github.com/spf13/cobra v1.9.1
-	github.com/tokenize-x/tx-chain/v6 v6.0.0-20251008161952-cdb7ab3aef61
+	github.com/tokenize-x/tx-chain/v6 v6.0.0-20251120065312-4ec1d9036a1d
 	github.com/tokenize-x/tx-crust v0.0.0-20250422105139-051d68f6bb18
 	github.com/tokenize-x/tx-tools v0.0.0-20251006151522-f6df01ec2033
 	go.uber.org/zap v1.27.0
@@ -39,7 +39,7 @@ require (
 	cosmossdk.io/core v0.11.3 // indirect
 	cosmossdk.io/depinject v1.2.1 // indirect
 	cosmossdk.io/errors v1.0.2 // indirect
-	cosmossdk.io/log v1.6.0 // indirect
+	cosmossdk.io/log v1.6.1 // indirect
 	cosmossdk.io/schema v1.1.0 // indirect
 	cosmossdk.io/store v1.1.2 // indirect
 	cosmossdk.io/x/evidence v0.1.1 // indirect
@@ -62,8 +62,8 @@ require (
 	github.com/bgentry/speakeasy v0.2.0 // indirect
 	github.com/bits-and-blooms/bitset v1.22.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.4 // indirect
-	github.com/bytedance/sonic v1.13.2 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/bytedance/sonic v1.14.0 // indirect
+	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect

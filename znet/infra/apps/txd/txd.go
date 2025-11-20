@@ -93,6 +93,14 @@ type GenesisDEXConfig struct {
 	MaxOrdersPerDenom uint64 `json:"max_orders_per_denom"`
 }
 
+// ModuleBalance defines a module account with its initial balance for genesis.
+//
+//nolint:tagliatelle
+type ModuleBalance struct {
+	ModuleName string    `json:"module_name"`
+	Coins      sdk.Coins `json:"coins"`
+}
+
 // GenesisInitConfig is used to pass parameters for genesis creation to txd binary.
 //
 //nolint:tagliatelle
@@ -105,6 +113,7 @@ type GenesisInitConfig struct {
 	GovConfig          GovConfig               `json:"gov_config"`
 	CustomParamsConfig CustomParamsConfig      `json:"custom_params_config"`
 	BankBalances       []banktypes.Balance     `json:"bank_balances"`
+	ModuleBalances     []ModuleBalance         `json:"module_balances"`
 	Validators         []GenesisValidator      `json:"validators"`
 	DEXConfig          GenesisDEXConfig        `json:"dex_config"`
 	GenTxs             []json.RawMessage       `json:"gen_txs"`

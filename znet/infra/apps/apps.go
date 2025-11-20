@@ -66,6 +66,38 @@ func (f *Factory) TXdNetwork(
 	config.SetBech32PrefixForConsensusNode(addressPrefix+"valcons", addressPrefix+"valconspub")
 	config.SetCoinType(constant.CoinType)
 
+	// Prepare module balances for PSE clearing accounts
+	// Using the same allocation as defined in app/upgrade/v6/pse_init.go
+	// Total: 100 billion tokens (100_000_000_000_000_000 base units)
+	totalMint := sdkmath.NewInt(100_000_000_000_000_000)
+
+	moduleBalances := []txd.ModuleBalance{
+		{
+			ModuleName: "pse_community",
+			Coins:      sdk.NewCoins(sdk.NewCoin(constant.DenomDev, totalMint.MulRaw(40).QuoRaw(100))), // 40%
+		},
+		{
+			ModuleName: "pse_foundation",
+			Coins:      sdk.NewCoins(sdk.NewCoin(constant.DenomDev, totalMint.MulRaw(30).QuoRaw(100))), // 30%
+		},
+		{
+			ModuleName: "pse_alliance",
+			Coins:      sdk.NewCoins(sdk.NewCoin(constant.DenomDev, totalMint.MulRaw(20).QuoRaw(100))), // 20%
+		},
+		{
+			ModuleName: "pse_partnership",
+			Coins:      sdk.NewCoins(sdk.NewCoin(constant.DenomDev, totalMint.MulRaw(3).QuoRaw(100))), // 3%
+		},
+		{
+			ModuleName: "pse_investors",
+			Coins:      sdk.NewCoins(sdk.NewCoin(constant.DenomDev, totalMint.MulRaw(5).QuoRaw(100))), // 5%
+		},
+		{
+			ModuleName: "pse_team",
+			Coins:      sdk.NewCoins(sdk.NewCoin(constant.DenomDev, totalMint.MulRaw(2).QuoRaw(100))), // 2%
+		},
+	}
+
 	genesisConfig := txd.GenesisInitConfig{
 		ChainID:       constant.ChainIDDev,
 		Denom:         constant.DenomDev,
@@ -90,7 +122,8 @@ func (f *Factory) TXdNetwork(
 				Coins:   sdk.NewCoins(sdk.NewCoin(constant.DenomDev, sdkmath.NewInt(100_000_000_000_000))),
 			},
 		},
-		GenTxs: make([]json.RawMessage, 0),
+		ModuleBalances: moduleBalances,
+		GenTxs:         make([]json.RawMessage, 0),
 	}
 	// optionally enable DEX generation
 	if genDEX {
