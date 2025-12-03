@@ -46,20 +46,20 @@ var tools = []Tool{
 	// https://go.dev/dl/
 	BinaryTool{
 		Name:    Go,
-		Version: "1.24.2",
+		Version: "1.24.3",
 		Local:   true,
 		Sources: Sources{
 			TargetPlatformLinuxAMD64: {
-				URL:  "https://go.dev/dl/go1.24.2.linux-amd64.tar.gz",
-				Hash: "sha256:68097bd680839cbc9d464a0edce4f7c333975e27a90246890e9f1078c7e702ad",
+				URL:  "https://go.dev/dl/go1.24.3.linux-amd64.tar.gz",
+				Hash: "sha256:3333f6ea53afa971e9078895eaa4ac7204a8c6b5c68c10e6bc9a33e8e391bdd8",
 			},
 			TargetPlatformDarwinAMD64: {
-				URL:  "https://go.dev/dl/go1.24.2.darwin-amd64.tar.gz",
-				Hash: "sha256:238d9c065d09ff6af229d2e3b8b5e85e688318d69f4006fb85a96e41c216ea83",
+				URL:  "https://go.dev/dl/go1.24.3.darwin-amd64.tar.gz",
+				Hash: "sha256:13e6fe3fcf65689d77d40e633de1e31c6febbdbcb846eb05fc2434ed2213e92b",
 			},
 			TargetPlatformDarwinARM64: {
-				URL:  "https://go.dev/dl/go1.24.2.darwin-arm64.tar.gz",
-				Hash: "sha256:b70f8b3c5b4ccb0ad4ffa5ee91cd38075df20fdbd953a1daedd47f50fbcff47a",
+				URL:  "https://go.dev/dl/go1.24.3.darwin-arm64.tar.gz",
+				Hash: "sha256:64a3fa22142f627e78fac3018ce3d4aeace68b743eff0afda8aae0411df5e4fb",
 			},
 		},
 		Binaries: map[string]string{
