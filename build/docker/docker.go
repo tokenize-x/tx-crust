@@ -3,13 +3,14 @@ package docker
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 	"go.uber.org/zap"
 
 	"github.com/tokenize-x/tx-crust/build/git"
@@ -58,8 +59,11 @@ type BuildImageConfig struct {
 	// Action is the action to take after building the image
 	Action Action
 
-	// Username to use in the tags
-	Username string
+	// ContainerRegistry to use in the tags
+	ContainerRegistry string
+
+	// OrgName to use in the tags
+	OrgName string
 
 	// Versions to add to the image tags, despite standard ones (commit hash, version)
 	Versions []string
@@ -67,14 +71,15 @@ type BuildImageConfig struct {
 
 // dockerBuildParamsInput is used to omit telescope antipattern.
 type dockerBuildParamsInput struct {
-	imageName     string
-	contextDir    string
-	commitHash    string
-	gitVersions   []string
-	otherVersions []string
-	username      string
-	platforms     []tools.TargetPlatform
-	action        Action
+	imageName         string
+	contextDir        string
+	commitHash        string
+	gitVersions       []string
+	otherVersions     []string
+	containerRegistry string
+	orgName           string
+	platforms         []tools.TargetPlatform
+	action            Action
 }
 
 // BuildImage builds docker image.
@@ -103,14 +108,15 @@ func BuildImage(ctx context.Context, config BuildImageConfig) error {
 	}
 
 	buildParams := getDockerBuildParams(ctx, dockerBuildParamsInput{
-		imageName:     config.ImageName,
-		contextDir:    contextDir,
-		commitHash:    commitHash,
-		gitVersions:   versionsFromGit,
-		otherVersions: config.Versions,
-		username:      config.Username,
-		platforms:     config.TargetPlatforms,
-		action:        config.Action,
+		imageName:         config.ImageName,
+		contextDir:        contextDir,
+		commitHash:        commitHash,
+		gitVersions:       versionsFromGit,
+		otherVersions:     config.Versions,
+		containerRegistry: config.ContainerRegistry,
+		orgName:           config.OrgName,
+		platforms:         config.TargetPlatforms,
+		action:            config.Action,
 	})
 
 	logger.Get(ctx).Info("Building docker images", zap.Any("build params", buildParams))
@@ -157,11 +163,9 @@ func getDockerBuildParams(ctx context.Context, input dockerBuildParamsInput) []s
 		}
 	}
 	for _, version := range versions {
-		if input.username == "" {
-			params = append(params, "-t", fmt.Sprintf("%s:%s", input.imageName, version))
-		} else {
-			params = append(params, "-t", fmt.Sprintf("%s/%s:%s", input.username, input.imageName, version))
-		}
+		imageName := strings.Join(lo.Compact([]string{input.containerRegistry, input.orgName, input.imageName}), "/")
+		tag := imageName + ":" + version
+		params = append(params, "-t", tag)
 	}
 
 	params = append(params, []string{"-f", "-", input.contextDir}...)
