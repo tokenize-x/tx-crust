@@ -331,8 +331,8 @@ func (bt BinaryTool) install(ctx context.Context, platform TargetPlatform) (retE
 
 	actualChecksum := hex.EncodeToString(hasher.Sum(nil))
 	if actualChecksum != expectedChecksum {
-		// return errors.Errorf("checksum does not match for tool %s, expected: %s, actual: %s, url: %s", bt.Name,
-		// 	expectedChecksum, actualChecksum, source.URL)
+		return errors.Errorf("checksum does not match for tool %s, expected: %s, actual: %s, url: %s", bt.Name,
+			expectedChecksum, actualChecksum, source.URL)
 	}
 
 	dstDir := filepath.Join(toolDir, "tx-crust")
