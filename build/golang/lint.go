@@ -1,6 +1,7 @@
 package golang
 
 import (
+	"bytes"
 	"context"
 	_ "embed"
 	"io"
@@ -9,8 +10,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"text/template"
 
 	"github.com/pkg/errors"
+	"github.com/tokenize-x/tx-tools/pkg/must"
 	"go.uber.org/zap"
 
 	"github.com/tokenize-x/tx-crust/build/tools"
@@ -19,7 +22,12 @@ import (
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 )
 
+type customLintersKey struct{}
+
 var (
+	//go:embed custom-gcl.tmpl
+	customGclConfig string
+	customGclTmpl   = template.Must(template.New(".custom-gcl.yml").Parse(customGclConfig))
 	//go:embed "golangci.yaml"
 	lintConfig                  []byte
 	lintNewLinesSkipDirsRegexps = []string{
@@ -27,6 +35,7 @@ var (
 		`^.+\.db$`, // directories containing goleveldb
 	}
 	lintNewLinesSkipFilesRegexps = []string{`\.iml$`, `\.wasm$`, `\.png$`}
+	customLintersCtxKey          = customLintersKey{}
 )
 
 // Lint runs linters and check that git status is clean.
@@ -43,6 +52,7 @@ func Lint(ctx context.Context, deps types.DepsFunc) error {
 func lint(ctx context.Context, deps types.DepsFunc) error {
 	deps(EnsureGo, EnsureGolangCI)
 	log := logger.Get(ctx)
+	customLinters := getCustomLinters(ctx)
 	config := lintConfigPath()
 
 	return onModule(repoPath, func(path string) error {
@@ -56,13 +66,126 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 		}
 
 		log.Info("Running linter", zap.String("path", path))
-		cmd := exec.Command(tools.Path("bin/golangci-lint", tools.TargetPlatformLocal), "run", "--config", config)
-		cmd.Dir = path
+
+		args := []string{"run", "--config", config}
+		if len(customLinters) > 0 {
+			if err = EnsureCustomGolangCI(ctx, customLinters); err != nil {
+				return err
+			}
+
+			for _, customLinter := range customLinters {
+				args = append(args, "--enable="+string(customLinter.GetName()))
+			}
+		}
+
+		cmd := exec.Command(must.String(filepath.Abs("bin/golangci-lint")), args...)
+		cmd.Dir = repoPath
 		if err := libexec.Exec(ctx, cmd); err != nil {
 			return errors.Wrapf(err, "linter errors found in module '%s'", path)
 		}
 		return nil
 	})
+}
+
+// EnsureCustomGolangCI ensures that a customized go linter is available.
+func EnsureCustomGolangCI(ctx context.Context, customLinters []tools.Tool) error {
+	binDir := must.String(filepath.Abs("bin"))
+
+	customLinterInstalled := false
+	if _, customGclErr := os.Stat(filepath.Join(binDir, "custom-gcl")); customGclErr == nil {
+		customLinterInstalled = true
+	}
+
+	stat, err := os.Stat(must.String(filepath.EvalSymlinks(filepath.Join(binDir, "golangci-lint"))))
+	customLinterLinked := err == nil && stat.Name() == "custom-gcl"
+
+	if !customLinterInstalled {
+		golangCITool, err := tools.Get(tools.GolangCI)
+		if err != nil {
+			return err
+		}
+
+		linters := make([]map[string]interface{}, len(customLinters))
+		for i, linter := range customLinters {
+			paths := linter.GetBinaries(tools.TargetPlatformLocal)
+			if linter.IsLocal() {
+				linters[i] = map[string]interface{}{
+					"Module": paths[0],
+					"Local":  true,
+					"Path":   paths[1],
+				}
+			} else {
+				linters[i] = map[string]interface{}{
+					"Module":  paths[0],
+					"Local":   false,
+					"Import":  paths[1],
+					"Version": linter.GetVersion(),
+				}
+			}
+		}
+
+		buf := &bytes.Buffer{}
+		if err = customGclTmpl.Execute(buf, map[string]interface{}{
+			"GolangCIVersion": golangCITool.GetVersion(),
+			"CustomLinters":   linters,
+		}); err != nil {
+			return err
+		}
+
+		err = errors.WithStack(os.WriteFile("bin/.custom-gcl.yml", buf.Bytes(), 0o600))
+		if err != nil {
+			return err
+		}
+
+		cmd := exec.Command(tools.Path("bin/golangci-lint", tools.TargetPlatformLocal), "custom")
+		cmd.Dir = binDir
+		if err = libexec.Exec(ctx, cmd); err != nil {
+			return errors.Wrap(err, "could not make custom linter")
+		}
+	}
+
+	if !customLinterLinked {
+		_ = os.Remove(filepath.Join(binDir, "golangci-lint"))
+		if err = os.Symlink(filepath.Join(binDir, "custom-gcl"), filepath.Join(binDir, "golangci-lint")); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	return nil
+}
+
+// getCustomLinters gets custom golangci-lint linters from context
+func getCustomLinters(ctx context.Context) []tools.Tool {
+	customLinters := ctx.Value(customLintersCtxKey)
+	if customLinters == nil {
+		return []tools.Tool{}
+	}
+
+	return customLinters.([]tools.Tool)
+}
+
+// WithCustomLinters adds custom golangci-lint linters to context
+func WithCustomLinters(ctx context.Context, customLinters ...tools.Name) (context.Context, error) {
+	currentCustomLinters := getCustomLinters(ctx)
+	for _, customLinterName := range customLinters {
+		isDuplicate := false
+		for _, currentCustomLinter := range currentCustomLinters {
+			if currentCustomLinter.GetName() == customLinterName {
+				isDuplicate = true
+			}
+		}
+		if !isDuplicate {
+			customLinter, err := tools.Get(customLinterName)
+			if err != nil {
+				return nil, err
+			}
+			if _, ok := customLinter.(tools.CustomLinter); !ok {
+				return nil, errors.Errorf("tool '%s' is not a custom linter", customLinterName)
+			}
+			currentCustomLinters = append(currentCustomLinters, customLinter)
+		}
+	}
+	return context.WithValue(ctx, customLintersCtxKey, currentCustomLinters), nil
 }
 
 func lintNewLines() error {
