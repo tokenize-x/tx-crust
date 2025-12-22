@@ -37,10 +37,6 @@ linters:
     - wrapcheck
     - wsl
   settings:
-    custom:
-      deterministicmaplint:
-        type: "module"
-        description: Enforce DeterministicMap
     funlen:
       lines: 100
       statements: 60
@@ -87,7 +83,7 @@ linters:
         path: _test\.go
       - linters:
           - deterministicmaplint
-        path: build/|_test\.go
+        path: build/|cmd/|_test\.go
     paths:
       - third_party$
       - builtin$

@@ -88,6 +88,11 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 }
 
 // EnsureCustomGolangCI ensures that a customized go linter is available.
+// To add custom linters to GolangCI, we need to add them to the .custom-gcl.yml file
+// and use the "golangci-lint custom" to compile the customized linter and get the custom-gcl binary.
+// This function ensures that the custom linter is available and links the custom-gcl binary to golangci-lint.
+// The custom linter is added to the bin folder of each project that needs it and will be used instead of
+// the original golangci-lint.
 func EnsureCustomGolangCI(ctx context.Context, customLinters []tools.Tool) error {
 	binDir := must.String(filepath.Abs("bin"))
 
