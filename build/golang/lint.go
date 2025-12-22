@@ -13,13 +13,13 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
-	"github.com/tokenize-x/tx-tools/pkg/must"
 	"go.uber.org/zap"
 
 	"github.com/tokenize-x/tx-crust/build/tools"
 	"github.com/tokenize-x/tx-crust/build/types"
 	"github.com/tokenize-x/tx-tools/pkg/libexec"
 	"github.com/tokenize-x/tx-tools/pkg/logger"
+	"github.com/tokenize-x/tx-tools/pkg/must"
 )
 
 type customLintersKey struct{}
@@ -104,7 +104,7 @@ func EnsureCustomGolangCI(ctx context.Context, customLinters []tools.Tool) error
 	stat, err := os.Stat(must.String(filepath.EvalSymlinks(filepath.Join(binDir, "golangci-lint"))))
 	customLinterLinked := err == nil && stat.Name() == "custom-gcl"
 
-	if !customLinterInstalled {
+	if !customLinterInstalled { //nolint:nestif
 		golangCITool, err := tools.Get(tools.GolangCI)
 		if err != nil {
 			return err
@@ -159,7 +159,7 @@ func EnsureCustomGolangCI(ctx context.Context, customLinters []tools.Tool) error
 	return nil
 }
 
-// getCustomLinters gets custom golangci-lint linters from context
+// getCustomLinters gets custom golangci-lint linters from context.
 func getCustomLinters(ctx context.Context) []tools.Tool {
 	customLinters := ctx.Value(customLintersCtxKey)
 	if customLinters == nil {
@@ -169,7 +169,7 @@ func getCustomLinters(ctx context.Context) []tools.Tool {
 	return customLinters.([]tools.Tool)
 }
 
-// WithCustomLinters adds custom golangci-lint linters to context
+// WithCustomLinters adds custom golangci-lint linters to context.
 func WithCustomLinters(ctx context.Context, customLinters ...tools.Name) (context.Context, error) {
 	currentCustomLinters := getCustomLinters(ctx)
 	for _, customLinterName := range customLinters {
