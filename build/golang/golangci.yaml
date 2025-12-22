@@ -6,6 +6,9 @@ run:
     - integrationtests
 linters:
   default: all
+  enable:
+{{range .CustomLinters}}    - {{ .Name }}
+{{end}}
   disable:
     - cyclop
     - depguard
@@ -38,9 +41,9 @@ linters:
     - wsl
   settings:
     custom:
-{{range .CustomLinters}}      {{ . }}:
+{{range .CustomLinters}}      {{ .Name }}:
         type: "module"
-        description: Enable {{ . }} custom module
+        description: Enable {{ .Name }} custom module
 {{end}}
     funlen:
       lines: 100
