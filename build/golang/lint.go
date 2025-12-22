@@ -29,7 +29,8 @@ var (
 	customGclConfig string
 	customGclTmpl   = template.Must(template.New(".custom-gcl.yml").Parse(customGclConfig))
 	//go:embed "golangci.yaml"
-	lintConfig                  []byte
+	lintConfig                  string
+	lintConfigTmpl              = template.Must(template.New("golangci.yaml").Parse(lintConfig))
 	lintNewLinesSkipDirsRegexps = []string{
 		`^\.`, `^vendor$`, `^target$`, `^tmp$`,
 		`^.+\.db$`, // directories containing goleveldb
@@ -54,6 +55,14 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 	log := logger.Get(ctx)
 	customLinters := getCustomLinters(ctx)
 	config := lintConfigPath()
+
+	linters := make([]string, len(customLinters))
+	for i, customLinter := range customLinters {
+		linters[i] = string(customLinter.GetName())
+	}
+	if err := storeLintConfig(linters); err != nil {
+		return err
+	}
 
 	return onModule(repoPath, func(path string) error {
 		goCodePresent, err := containsGoCode(path)
@@ -270,9 +279,15 @@ func parseRegexps(strRegexps []string) ([]*regexp.Regexp, error) {
 }
 
 func lintConfigPath() string {
-	return filepath.Join(tools.VersionedRootPath(tools.TargetPlatformLocal), "golangci.yaml")
+	return filepath.Join("bin", "golangci.yaml")
 }
 
-func storeLintConfig(_ context.Context, _ types.DepsFunc) error {
-	return errors.WithStack(os.WriteFile(lintConfigPath(), lintConfig, 0o600))
+func storeLintConfig(linters []string) error {
+	buf := &bytes.Buffer{}
+	if err := lintConfigTmpl.Execute(buf, map[string]interface{}{
+		"CustomLinters": linters,
+	}); err != nil {
+		return err
+	}
+	return errors.WithStack(os.WriteFile(lintConfigPath(), buf.Bytes(), 0o600))
 }

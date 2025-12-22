@@ -106,7 +106,6 @@ func EnsureGo(ctx context.Context, deps types.DepsFunc) error {
 
 // EnsureGolangCI ensures that go linter is available.
 func EnsureGolangCI(ctx context.Context, deps types.DepsFunc) error {
-	deps(storeLintConfig)
 	return tools.Ensure(ctx, tools.GolangCI, tools.TargetPlatformLocal)
 }
 

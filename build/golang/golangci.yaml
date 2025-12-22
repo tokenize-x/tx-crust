@@ -37,6 +37,11 @@ linters:
     - wrapcheck
     - wsl
   settings:
+    custom:
+{{range .CustomLinters}}      {{ . }}:
+        type: "module"
+        description: Enable {{ . }} custom module
+{{end}}
     funlen:
       lines: 100
       statements: 60
