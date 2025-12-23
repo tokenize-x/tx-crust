@@ -30,11 +30,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/go-bip39"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 
 	"github.com/tokenize-x/tx-chain/v6/pkg/client"
 	txchainconfig "github.com/tokenize-x/tx-chain/v6/pkg/config"
+	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
 	txchainconstant "github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
 	assetft "github.com/tokenize-x/tx-chain/v6/x/asset/ft"
 	assetfttypes "github.com/tokenize-x/tx-chain/v6/x/asset/ft/types"
@@ -407,6 +410,89 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 	)
 }
 
+func AddDelegationGenesisConfig(ctx context.Context, genesisConfig GenesisInitConfig) (GenesisInitConfig, error) {
+	mnemonic, address, err := generateMnemonic()
+	if err != nil {
+		return GenesisInitConfig{}, err
+	}
+
+	delegation := sdkmath.NewInt(1_000_000_000)
+	messages := []sdk.Msg{}
+	for _, val := range genesisConfig.Validators {
+		valAdrBz, err := addressFromMnemonic(val.DelegatorMnemonic)
+		if err != nil {
+			return GenesisInitConfig{}, err
+		}
+		msg := &stakingtypes.MsgDelegate{
+			DelegatorAddress: address.String(),                  // to be filled
+			ValidatorAddress: sdk.ValAddress(valAdrBz).String(), // to be filled
+			Amount: sdk.Coin{
+				Denom:  genesisConfig.Denom,
+				Amount: delegation,
+			},
+		}
+		messages = append(messages, msg)
+	}
+	genesisConfig.BankBalances = append(genesisConfig.BankBalances, banktypes.Balance{
+		Address: address.String(),
+		Coins: sdk.Coins{
+			sdk.Coin{
+				Denom:  genesisConfig.Denom,
+				Amount: delegation.MulRaw(int64(len(genesisConfig.Validators))),
+			},
+		},
+	})
+	txData, err := signTxsWithMnemonic(ctx, string(genesisConfig.ChainID), mnemonic, messages...)
+	if err != nil {
+		return GenesisInitConfig{}, err
+	}
+	genesisConfig.GenTxs = append(genesisConfig.GenTxs, txData)
+	return genesisConfig, nil
+}
+
+// generateMnemonic generates a cryptographically secure random mnemonic for production use.
+// It uses crypto/rand to generate 128 bits (16 bytes) of entropy for a 12-word mnemonic.
+func generateMnemonic() (string, sdk.AccAddress, error) {
+	// Generate 128 bits (16 bytes) of cryptographically secure random entropy
+	// This produces a 12-word mnemonic (128 bits = 12 words)
+	// For 24-word mnemonic, use 32 bytes (256 bits)
+	entropy := make([]byte, 16)
+
+	_, err := rand.Read(entropy)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to generate random entropy: %w", err)
+	}
+
+	// Generate mnemonic from entropy using BIP39
+	mnemonic, err := bip39.NewMnemonic(entropy)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to create mnemonic from entropy: %w", err)
+	}
+
+	addrBytes, err := addressFromMnemonic(mnemonic)
+	if err != nil {
+		return "", nil, err
+	}
+	// Create address
+	addr := sdk.AccAddress(addrBytes)
+
+	return mnemonic, addr, nil
+}
+
+func addressFromMnemonic(mnemonic string) ([]byte, error) {
+	hdPath := hd.CreateHDPath(constant.CoinType, 0, 0).String()
+	masterPriv, ch := hd.ComputeMastersFromSeed(bip39.NewSeed(mnemonic, ""))
+	derivedPriv, err := hd.DerivePrivateKeyForPath(masterPriv, ch, hdPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to derive key: %w", err)
+	}
+
+	privKey := hd.Secp256k1.Generate()(derivedPriv)
+	pubKey := privKey.PubKey()
+
+	return pubKey.Address(), nil
+}
+
 // AddDEXGenesisConfig adds DEX related genesis config.
 func AddDEXGenesisConfig(ctx context.Context, genesisConfig GenesisInitConfig) (GenesisInitConfig, error) {
 	// issue an asset FT to place an order
@@ -592,6 +678,7 @@ func signTxsWithMnemonic(
 	encodingConfig := txchainconfig.NewEncodingConfig(
 		assetft.AppModuleBasic{},
 		dex.AppModuleBasic{},
+		staking.AppModuleBasic{},
 	)
 	inMemKeyring := keyring.NewInMemory(encodingConfig.Codec)
 	_, err := inMemKeyring.NewAccount(

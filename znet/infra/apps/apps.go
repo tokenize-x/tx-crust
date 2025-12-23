@@ -230,6 +230,13 @@ func (f *Factory) TXdNetwork(
 		lastNode = node
 		nodes = append(nodes, node)
 	}
+	for range 2500 {
+		var err error
+		genesisConfig, err = txd.AddDelegationGenesisConfig(ctx, genesisConfig)
+		if err != nil {
+			return txd.TXd{}, nil, err
+		}
+	}
 	return lastNode, nodes, nil
 }
 
