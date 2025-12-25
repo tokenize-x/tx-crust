@@ -6,6 +6,9 @@ run:
     - integrationtests
 linters:
   default: all
+  enable:
+{{range .CustomLinters}}    - {{ .Name }}
+{{end}}
   disable:
     - cyclop
     - depguard
@@ -37,6 +40,11 @@ linters:
     - wrapcheck
     - wsl
   settings:
+    custom:
+{{range .CustomLinters}}      {{ .Name }}:
+        type: "module"
+        description: Enable {{ .Name }} custom module
+{{end}}
     funlen:
       lines: 100
       statements: 60
@@ -81,6 +89,9 @@ linters:
           - dupl
           - funlen
         path: _test\.go
+      - linters:
+          - deterministicmaplint
+        path: build/|cmd/|_test\.go
     paths:
       - third_party$
       - builtin$

@@ -1,0 +1,6 @@
+version: v{{ .GolangCIVersion }}
+plugins:
+{{range .CustomLinters}}  - module: '{{ .Module }}'
+{{if .Local}}    path: {{ .Path }}{{else}}    import: '{{.Import}}'
+    version: {{.Version}}{{end}}
+{{end}}

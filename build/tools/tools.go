@@ -216,6 +216,7 @@ var (
 var (
 	_ Tool = BinaryTool{}
 	_ Tool = GoPackageTool{}
+	_ Tool = CustomLinter{}
 )
 
 // Tool represents tool to be installed.
@@ -466,6 +467,54 @@ func (gpt GoPackageTool) Ensure(ctx context.Context, platform TargetPlatform) er
 	}
 
 	return linkTool(gpt, platform, dst)
+}
+
+// CustomLinter is the custom linter installed for GolangCILint.
+type CustomLinter struct {
+	Name    Name
+	Version string
+	Module  string
+	Local   bool
+	Path    string
+	Import  string
+}
+
+// GetName returns the name of the tool.
+func (cl CustomLinter) GetName() Name {
+	return cl.Name
+}
+
+// GetVersion returns the version of the tool.
+func (cl CustomLinter) GetVersion() string {
+	return cl.Version
+}
+
+// IsLocal tells if tool should be installed locally.
+func (cl CustomLinter) IsLocal() bool {
+	return cl.Local
+}
+
+// IsCompatible tells if tool is defined for the platform.
+func (cl CustomLinter) IsCompatible(_ TargetPlatform) bool {
+	return true
+}
+
+// GetBinaries returns binaries defined for the platform.
+func (cl CustomLinter) GetBinaries(_ TargetPlatform) []string {
+	res := []string{
+		"bin/" + filepath.Base(cl.Module),
+	}
+	if cl.Local {
+		res = append(res, must.String(filepath.Abs(cl.Path)))
+	} else {
+		res = append(res, "bin/"+filepath.Base(cl.Import))
+	}
+	return res
+}
+
+// Ensure ensures that tool is installed.
+func (cl CustomLinter) Ensure(_ context.Context, _ TargetPlatform) error {
+	return nil
 }
 
 // RustInstaller installs rust.
