@@ -39,6 +39,7 @@ linters:
     - varnamelen
     - wrapcheck
     - wsl
+    - buildssa
   settings:
     custom:
 {{range .CustomLinters}}      {{ .Name }}:
