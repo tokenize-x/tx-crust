@@ -1642,8 +1642,8 @@ github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoM
 github.com/tidwall/btree v1.7.0 h1:L1fkJH/AuEh5zBnnBbmTwQ5Lt+bRJ5A8EWecslvo9iI=
 github.com/tidwall/btree v1.7.0/go.mod h1:twD9XRA5jj9VUQGELzDO4HPQTNJsoWWfYEL+EUQ2cKY=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
-github.com/tokenize-x/tx-chain/v6 v6.0.0-20251120065312-4ec1d9036a1d h1:ddA7K9EpxU6XCkYH2pQ4ItX890AsG6RlnHVtzoR9mN4=
-github.com/tokenize-x/tx-chain/v6 v6.0.0-20251120065312-4ec1d9036a1d/go.mod h1:NgF9pBHDLh6igJcPSFB+50NLWz/0rt2DV6OEqYWEC3k=
+github.com/tokenize-x/tx-chain/v6 v6.0.0-20251223140913-ae2b7a57eb7e h1:1JIllP6sW5xY5MlsFr2SsUUlIP7tCwtgxgiUEZfaTlM=
+github.com/tokenize-x/tx-chain/v6 v6.0.0-20251223140913-ae2b7a57eb7e/go.mod h1:/oOZmyQnR6cGnzSbAe5V94TTFccCnOCFgYNuxjvhds4=
 github.com/tokenize-x/tx-tools v0.0.0-20251006151522-f6df01ec2033 h1:1++kosP83GjVa85RkTBxkzI3qNKPWp0uIRn4UiFQuPY=
 github.com/tokenize-x/tx-tools v0.0.0-20251006151522-f6df01ec2033/go.mod h1:tnc0L7WkOv6kah53Wl17fcG8G2MCPGotP1v2ezB/a/g=
 github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926/go.mod h1:9ESjWnEqriFuLhtthL60Sar/7RFoluCcXsuvEwTV5KM=

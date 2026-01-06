@@ -18,14 +18,14 @@ xrpl:
     full_scan_enabled: true
     repeat_full_scan: true
     retry_delay: 1s
-coreum:
-  relayer_key_name: coreum-relayer
+tx:
+  relayer_key_name: tx-relayer
   grpc:
-    url: "{{ .CoreumGRPCURL }}"
+    url: "{{ .TXChainGRPCURL }}"
   network:
     chain_id: coreum-devnet-1
   contract:
-    contract_address: "{{ .CoreumContractAddress }}"
+    contract_address: "{{ .TXChainContractAddress }}"
     gas_adjustment: 2
     gas_price_adjustment: 1.2
     page_limit: 250
