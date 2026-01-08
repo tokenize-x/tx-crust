@@ -531,11 +531,22 @@ func (c TXd) prepare(ctx context.Context) error {
 	dockerLinuxBinaryPath := filepath.Join(
 		c.config.BinDir, ".cache", "txd", tools.TargetPlatformLinuxLocalArchInDocker.String(), "bin",
 	)
+	localBinaryPath := filepath.Join(
+		c.config.BinDir, ".cache", "txd", tools.TargetPlatformLocal.String(), "bin",
+	)
 	for upgrade, binary := range upgrades {
-		err := copyFile(filepath.Join(dockerLinuxBinaryPath, binary),
-			filepath.Join(c.config.HomeDir, "cosmovisor", "upgrades", upgrade, "bin", "txd"), 0o755)
-		if err != nil {
-			return err
+		if binary == "txd" {
+			err := copyFile(filepath.Join(localBinaryPath, binary),
+				filepath.Join(c.config.HomeDir, "cosmovisor", "upgrades", upgrade, "bin", "txd"), 0o755)
+			if err != nil {
+				return err
+			}
+		} else {
+			err := copyFile(filepath.Join(dockerLinuxBinaryPath, binary),
+				filepath.Join(c.config.HomeDir, "cosmovisor", "upgrades", upgrade, "bin", "txd"), 0o755)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
