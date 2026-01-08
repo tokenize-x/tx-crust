@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -453,12 +454,16 @@ func AddDEXGenesisConfig(ctx context.Context, genesisConfig GenesisInitConfig) (
 
 func (c TXd) dockerBinaryPath() string {
 	txdStandardBinName := "txd"
+	platform := tools.TargetPlatformLinuxLocalArchInDocker
+	if c.Config().BinaryVersion == "" && runtime.GOOS == tools.OSLinux {
+		platform = tools.TargetPlatformLocal
+	}
 	if c.Config().BinaryVersion == "v5.0.0" {
 		txdStandardBinName = "cored"
 	}
 	txdBinName := txdStandardBinName
 	txdStandardPath := filepath.Join(
-		c.config.BinDir, ".cache", "txd", tools.TargetPlatformLinuxLocalArchInDocker.String(), "bin",
+		c.config.BinDir, ".cache", "txd", platform.String(), "bin",
 	)
 	txdPath := txdStandardPath
 
