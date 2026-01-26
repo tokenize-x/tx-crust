@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/binance"
 
 	"github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
 	"github.com/tokenize-x/tx-crust/znet/infra"
@@ -438,6 +439,22 @@ func (f *Factory) BridgeXRPLRelayers(
 	}
 
 	return relayers, nil
+}
+
+// Binance returns binance smart chain node app set.
+func (f *Factory) Binance(prefix string) binance.Binance {
+	nameBinance := BuildPrefixedAppName(prefix, string(binance.AppType))
+
+	return binance.New(binance.Config{
+		Name:                nameBinance,
+		HomeDir:             filepath.Join(f.config.AppDir, nameBinance),
+		AppInfo:             f.spec.DescribeApp(binance.AppType, nameBinance),
+		RPCPort:             binance.DefaultRPCPort,
+		WSPort:              binance.DefaultWSPort,
+		ChainID:             1337, // private‑net chain ID
+		Validator:           binance.DefaultValidator,
+		ValidatorPrivateKey: binance.DefaultValidatorPrivateKey,
+	})
 }
 
 // BuildPrefixedAppName builds the app name based on its prefix and name.

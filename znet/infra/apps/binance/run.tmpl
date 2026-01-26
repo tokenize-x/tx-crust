@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+
+# Initialise the chain if it has never been started.
+if [ ! -d "{{ .HomePath }}/geth/chaindata" ]; then
+    geth account import \
+      --datadir {{ .HomePath }} \
+      --password {{ .HomePath }}/{{ .PasswordFile }} \
+      {{ .HomePath }}/{{ .PrivateKeyFile }}
+    geth --datadir {{ .HomePath }} init {{ .HomePath }}/{{ .ConfigFile }}
+fi
+
+exec geth \
+    --datadir {{ .HomePath }} \
+    --http --http.addr 0.0.0.0 --http.port {{ .RPCPort }} --http.api eth,net,web3,debug \
+    --ws   --ws.addr 0.0.0.0   --ws.port {{ .WSPort }}   --ws.api eth,net,web3,debug \
+    --nodiscover \
+    --allow-insecure-unlock \
+    --unlock "{{ .Validator }}" \
+    --password {{ .HomePath }}/{{ .PasswordFile }} \
+    --mine --miner.etherbase "{{ .Validator }}" \
+    --syncmode full \
+    --verbosity 3
+
+while true; do
+  sleep 0.3
+  wget -q -O- --post-data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' --header='Content-Type:application/json'  http://localhost:8545/
+done
