@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
+	"github.com/tokenize-x/tx-crust/znet/infra/apps/binance"
 
 	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/callisto"
@@ -24,6 +25,7 @@ const (
 	AppPrefixMonitoring = "monitoring"
 	AppPrefixXRPL       = "xrpl"
 	AppPrefixBridgeXRPL = "bridge-xrpl"
+	AppPrefixBinance    = "binance"
 )
 
 // Predefined Profiles.
@@ -39,6 +41,7 @@ const (
 	ProfileXRPL       = "xrpl"
 	ProfileXRPLBridge = "bridge-xrpl"
 	ProfileDEX        = "dex"
+	ProfileBinance    = "binance"
 )
 
 var profiles = []string{
@@ -53,6 +56,7 @@ var profiles = []string{
 	ProfileXRPL,
 	ProfileXRPLBridge,
 	ProfileDEX,
+	ProfileBinance,
 }
 
 var defaultProfiles = []string{Profile1TXd}
@@ -217,6 +221,12 @@ func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, txdVersi
 			return nil, txd.TXd{}, err
 		}
 		appSet = append(appSet, relayers...)
+	}
+
+	if pMap[ProfileBinance] {
+		var binanceApp binance.Binance
+		binanceApp = appF.Binance(AppPrefixBinance)
+		appSet = append(appSet, binanceApp)
 	}
 
 	return appSet, txdApp, nil
