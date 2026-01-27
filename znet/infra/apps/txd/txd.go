@@ -387,7 +387,7 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 	var binaryPath string
 	if c.config.BinaryVersion != "" {
 		binaryName := "txd"
-		if c.config.BinaryVersion == "v5.0.0" {
+		if c.config.BinaryVersion == "v5.0.3" {
 			binaryName = "cored"
 		}
 		binaryPath = filepath.Join(
@@ -453,7 +453,7 @@ func AddDEXGenesisConfig(ctx context.Context, genesisConfig GenesisInitConfig) (
 
 func (c TXd) dockerBinaryPath() string {
 	txdStandardBinName := "txd"
-	if c.Config().BinaryVersion == "v5.0.0" {
+	if c.Config().BinaryVersion == "v5.0.3" {
 		txdStandardBinName = "cored"
 	}
 	txdBinName := txdStandardBinName
