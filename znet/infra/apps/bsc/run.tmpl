@@ -21,8 +21,3 @@ exec geth \
     --mine --miner.etherbase "{{ .Validator }}" \
     --syncmode full \
     --verbosity 3
-
-while true; do
-  sleep 0.3
-  wget -q -O- --post-data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' --header='Content-Type:application/json'  http://localhost:8545/
-done
