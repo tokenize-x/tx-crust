@@ -1,4 +1,4 @@
-package binance
+package bsc
 
 import (
 	"bytes"
@@ -33,7 +33,7 @@ var (
 )
 
 const (
-	AppType infra.AppType = "binance"
+	AppType infra.AppType = "bsc"
 
 	DefaultRPCPort = 8545 // HTTP JSON‑RPC
 	DefaultWSPort  = 8546 // WebSocket
@@ -48,7 +48,7 @@ const (
 	passwordFileName   = "pwd.txt"
 )
 
-// Config stores Binance app config.
+// Config stores Binance Smart Chain (BSC) app config.
 type Config struct {
 	Name                string
 	HomeDir             string         // host directory that will be mounted into the container
@@ -60,32 +60,32 @@ type Config struct {
 	ValidatorPrivateKey string
 }
 
-// New creates a new Binance app instance.
-func New(cfg Config) Binance {
-	return Binance{config: cfg}
+// New creates a new Binance Smart Chain (BSC) app instance.
+func New(cfg Config) BSC {
+	return BSC{config: cfg}
 }
 
-// Binance represents a single‑node Binance Smart Chain deployment.
-type Binance struct {
+// BSC represents a single‑node Binance Smart Chain deployment.
+type BSC struct {
 	config Config
 }
 
 // Type implements infra.App.
-func (b Binance) Type() infra.AppType { return AppType }
+func (b BSC) Type() infra.AppType { return AppType }
 
 // Name implements infra.App.
-func (b Binance) Name() string { return b.config.Name }
+func (b BSC) Name() string { return b.config.Name }
 
 // Info implements infra.App.
-func (b Binance) Info() infra.DeploymentInfo { return b.config.AppInfo.Info() }
+func (b BSC) Info() infra.DeploymentInfo { return b.config.AppInfo.Info() }
 
 // Config returns the raw config struct.
-func (b Binance) Config() Config { return b.config }
+func (b BSC) Config() Config { return b.config }
 
 // HealthCheck pings the node with `eth_blockNumber`.
-func (b Binance) HealthCheck(ctx context.Context) error {
+func (b BSC) HealthCheck(ctx context.Context) error {
 	if b.config.AppInfo.Info().Status != infra.AppStatusRunning {
-		return retry.Retryable(errors.Errorf("Binance hasn't started yet"))
+		return retry.Retryable(errors.Errorf("BSC hasn't started yet"))
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
@@ -132,10 +132,10 @@ func (b Binance) HealthCheck(ctx context.Context) error {
 }
 
 // Deployment returns the infra.Deployment description used by the orchestrator.
-func (b Binance) Deployment() infra.Deployment {
+func (b BSC) Deployment() infra.Deployment {
 	return infra.Deployment{
 		RunAsUser: true,
-		Image:     "ghcr.io/bnb-chain/bsc:1.6.6", // official Binance geth image
+		Image:     "ghcr.io/bnb-chain/bsc:1.6.6", // official BSC geth image
 		Name:      b.Name(),
 		Info:      b.config.AppInfo,
 		Volumes: []infra.Volume{
@@ -154,7 +154,7 @@ func (b Binance) Deployment() infra.Deployment {
 }
 
 // prepare writes private key, genesis.json, password file and entrypoint.
-func (b Binance) prepare(_ context.Context) error {
+func (b BSC) prepare(_ context.Context) error {
 	if err := b.savePrivateKeyFile(); err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (b Binance) prepare(_ context.Context) error {
 }
 
 // saveGenesisFile writes a minimal Clique PoA genesis using the template.
-func (b Binance) saveGenesisFile() error {
+func (b BSC) saveGenesisFile() error {
 	// Build the padded extraData field required by Clique:
 	validatorAddr := strings.TrimPrefix(b.config.Validator, "0x")
 	if len(validatorAddr) != 40 {
@@ -190,7 +190,7 @@ func (b Binance) saveGenesisFile() error {
 	}
 
 	fpath := filepath.Join(b.config.HomeDir, genesisFileName)
-	//  /Users/masihyeganeh/Library/Caches/tx-crust/znet/znet/app/binance-binance/genesis.json
+
 	f, err := os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 	if err != nil {
 		return errors.WithStack(err)
@@ -204,19 +204,19 @@ func (b Binance) saveGenesisFile() error {
 }
 
 // savePasswordFile creates an empty password file (required by geth when unlocking).
-func (b Binance) savePasswordFile() error {
+func (b BSC) savePasswordFile() error {
 	fpath := filepath.Join(b.config.HomeDir, passwordFileName)
 	return os.WriteFile(fpath, []byte{}, 0o600)
 }
 
 // savePrivateKeyFile creates private key file of the default validator.
-func (b Binance) savePrivateKeyFile() error {
+func (b BSC) savePrivateKeyFile() error {
 	fpath := filepath.Join(b.config.HomeDir, privateKeyFileName)
 	return os.WriteFile(fpath, []byte(b.config.ValidatorPrivateKey), 0o600)
 }
 
 // saveRunScriptFile renders `run.tmpl` and writes it as an executable entrypoint.
-func (b Binance) saveRunScriptFile() error {
+func (b BSC) saveRunScriptFile() error {
 	scriptArgs := struct {
 		HomePath       string
 		ConfigFile     string
