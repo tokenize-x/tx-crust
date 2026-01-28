@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -452,13 +453,17 @@ func AddDEXGenesisConfig(ctx context.Context, genesisConfig GenesisInitConfig) (
 }
 
 func (c TXd) dockerBinaryPath() string {
+	platform := tools.TargetPlatformLinuxLocalArchInDocker
+	if c.Config().BinaryVersion == "" && runtime.GOOS == tools.OSLinux {
+		platform = tools.TargetPlatformLocal
+	}
 	txdStandardBinName := "txd"
 	if c.Config().BinaryVersion == "v5.0.3" {
 		txdStandardBinName = "cored"
 	}
 	txdBinName := txdStandardBinName
 	txdStandardPath := filepath.Join(
-		c.config.BinDir, ".cache", "txd", tools.TargetPlatformLinuxLocalArchInDocker.String(), "bin",
+		c.config.BinDir, ".cache", "txd", platform.String(), "bin",
 	)
 	txdPath := txdStandardPath
 
@@ -526,8 +531,17 @@ func (c TXd) prepare(ctx context.Context) error {
 	dockerLinuxBinaryPath := filepath.Join(
 		c.config.BinDir, ".cache", "txd", tools.TargetPlatformLinuxLocalArchInDocker.String(), "bin",
 	)
+	localBinaryPath := filepath.Join(
+		c.config.BinDir, ".cache", "txd", tools.TargetPlatformLocal.String(), "bin",
+	)
 	for upgrade, binary := range upgrades {
-		err := copyFile(filepath.Join(dockerLinuxBinaryPath, binary),
+		var pathPrefix string
+		if binary == "txd" {
+			pathPrefix = localBinaryPath
+		} else {
+			pathPrefix = dockerLinuxBinaryPath
+		}
+		err := copyFile(filepath.Join(pathPrefix, binary),
 			filepath.Join(c.config.HomeDir, "cosmovisor", "upgrades", upgrade, "bin", "txd"), 0o755)
 		if err != nil {
 			return err
