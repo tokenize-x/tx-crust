@@ -14,6 +14,10 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/go-bip39"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
 
 	"github.com/tokenize-x/tx-crust/znet/infra"
@@ -38,10 +42,6 @@ const (
 	DefaultRPCPort = 8545 // HTTP JSON‑RPC
 	DefaultWSPort  = 8546 // WebSocket
 
-	// DefaultValidator A deterministic validator address.
-	DefaultValidator           = "0x630bd87fbe042cbc570b7ce109049a7b4cf481db"
-	DefaultValidatorPrivateKey = "4c0883a69102937d6231471b5dbb6204fe5129617082796a5b8e6a3e3d6f4c7c"
-
 	dockerEntrypoint   = "run.sh"
 	genesisFileName    = "genesis.json"
 	privateKeyFileName = "private.key"
@@ -50,14 +50,14 @@ const (
 
 // Config stores Binance Smart Chain (BSC) app config.
 type Config struct {
-	Name                string
-	HomeDir             string         // host directory that will be mounted into the container
-	AppInfo             *infra.AppInfo // infra meta‑data (host, ports, status, etc.)
-	RPCPort             int
-	WSPort              int
-	ChainID             int64 // Binance mainnet = 56; testnet = 97; for local use any >1 works.
-	Validator           string
-	ValidatorPrivateKey string
+	Name             string
+	HomeDir          string         // host directory that will be mounted into the container
+	AppInfo          *infra.AppInfo // infra meta‑data (host, ports, status, etc.)
+	RPCPort          int
+	WSPort           int
+	ChainID          int64 // Binance mainnet = 56; testnet = 97; for local use any >1 works.
+	FaucetAddr       string
+	FaucetPrivateKey []byte
 }
 
 // New creates a new Binance Smart Chain (BSC) app instance.
@@ -170,9 +170,9 @@ func (b BSC) prepare(_ context.Context) error {
 // saveGenesisFile writes a minimal Clique PoA genesis using the template.
 func (b BSC) saveGenesisFile() error {
 	// Build the padded extraData field required by Clique:
-	validatorAddr := strings.TrimPrefix(b.config.Validator, "0x")
+	validatorAddr := strings.TrimPrefix(b.config.FaucetAddr, "0x")
 	if len(validatorAddr) != 40 {
-		return errors.Errorf("validator address must be 20 bytes hex: %s", b.config.Validator)
+		return errors.Errorf("validator address must be 20 bytes hex: %s", b.config.FaucetAddr)
 	}
 	// 32 zero‑bytes + validator (20 bytes) + 65 zero‑bytes = 97 bytes total.
 	pad := strings.Repeat("0", 64)     // 32 bytes in hex
@@ -185,7 +185,7 @@ func (b BSC) saveGenesisFile() error {
 		ExtraData string
 	}{
 		ChainID:   b.config.ChainID,
-		Validator: strings.ToLower(b.config.Validator),
+		Validator: strings.ToLower(b.config.FaucetAddr),
 		ExtraData: extraData,
 	}
 
@@ -209,10 +209,26 @@ func (b BSC) savePasswordFile() error {
 	return os.WriteFile(fpath, []byte{}, 0o600)
 }
 
+func ExtractKeyPairsFromSeed(seedPhrase string) ([]byte, string, error) {
+	seed := bip39.NewSeed(seedPhrase, keyring.DefaultBIP39Passphrase)
+	masterPriv, ch := hd.ComputeMastersFromSeed(seed)
+	hdPath := hd.CreateHDPath(60, 0, 0).String()
+	privKey, err := hd.DerivePrivateKeyForPath(masterPriv, ch, hdPath)
+	if err != nil {
+		return nil, "", err
+	}
+	privateKey, err := crypto.ToECDSA(privKey)
+	if err != nil {
+		return nil, "", err
+	}
+	address := crypto.PubkeyToAddress(privateKey.PublicKey).Hex()
+	return privKey, address, nil
+}
+
 // savePrivateKeyFile creates private key file of the default validator.
 func (b BSC) savePrivateKeyFile() error {
 	fpath := filepath.Join(b.config.HomeDir, privateKeyFileName)
-	return os.WriteFile(fpath, []byte(b.config.ValidatorPrivateKey), 0o600)
+	return os.WriteFile(fpath, b.config.FaucetPrivateKey, 0o600)
 }
 
 // saveRunScriptFile renders `run.tmpl` and writes it as an executable entrypoint.
@@ -232,7 +248,7 @@ func (b BSC) saveRunScriptFile() error {
 		PrivateKeyFile: privateKeyFileName,
 		RPCPort:        b.config.RPCPort,
 		WSPort:         b.config.WSPort,
-		Validator:      strings.ToLower(b.config.Validator),
+		Validator:      strings.ToLower(b.config.FaucetAddr),
 	}
 
 	buf := &bytes.Buffer{}

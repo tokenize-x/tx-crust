@@ -445,15 +445,20 @@ func (f *Factory) BridgeXRPLRelayers(
 func (f *Factory) BSC(prefix string) bsc.BSC {
 	nameBSC := BuildPrefixedAppName(prefix, string(bsc.AppType))
 
+	faucetPrivateKey, faucetAddr, err := bsc.ExtractKeyPairsFromSeed(bsc.FundingMnemonic)
+	if err != nil {
+		panic(err)
+	}
+
 	return bsc.New(bsc.Config{
-		Name:                nameBSC,
-		HomeDir:             filepath.Join(f.config.AppDir, nameBSC),
-		AppInfo:             f.spec.DescribeApp(bsc.AppType, nameBSC),
-		RPCPort:             bsc.DefaultRPCPort,
-		WSPort:              bsc.DefaultWSPort,
-		ChainID:             1337, // private‑net chain ID
-		Validator:           bsc.DefaultValidator,
-		ValidatorPrivateKey: bsc.DefaultValidatorPrivateKey,
+		Name:             nameBSC,
+		HomeDir:          filepath.Join(f.config.AppDir, nameBSC),
+		AppInfo:          f.spec.DescribeApp(bsc.AppType, nameBSC),
+		RPCPort:          bsc.DefaultRPCPort,
+		WSPort:           bsc.DefaultWSPort,
+		ChainID:          1337, // private‑net chain ID
+		FaucetAddr:       faucetAddr,
+		FaucetPrivateKey: faucetPrivateKey,
 	})
 }
 
