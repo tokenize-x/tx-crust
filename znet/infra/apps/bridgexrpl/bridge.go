@@ -146,7 +146,7 @@ func (b Bridge) HealthCheck(ctx context.Context) error {
 func (b Bridge) Deployment() infra.Deployment {
 	d := infra.Deployment{
 		RunAsUser: true,
-		Image:     "coreumbridge-xrpl-relayer:local",
+		Image:     "tx-xrpl-bridge-relayer:local",
 		Name:      b.Name(),
 		Info:      b.config.AppInfo,
 		Volumes: []infra.Volume{
@@ -480,7 +480,7 @@ func (b Bridge) importKeys() error {
 		return err
 	}
 
-	return addKeyToTestKeyring(keyringDir, "coreum-relayer", "coreum",
+	return addKeyToTestKeyring(keyringDir, "tx-relayer", "coreum",
 		hd.CreateHDPath(constant.CoinType, 0, 0).String(),
 		b.config.Mnemonics.TXChain,
 	)

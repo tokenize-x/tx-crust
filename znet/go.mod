@@ -18,7 +18,7 @@ require (
 	github.com/rubblelabs/ripple v0.0.0-20240109131116-f99dee0aa0f3
 	github.com/samber/lo v1.49.1
 	github.com/spf13/cobra v1.9.1
-	github.com/tokenize-x/tx-chain/v6 v6.0.0-20251120065312-4ec1d9036a1d
+	github.com/tokenize-x/tx-chain/v6 v6.0.0-20251223140913-ae2b7a57eb7e
 	github.com/tokenize-x/tx-crust v0.0.0-20250422105139-051d68f6bb18
 	github.com/tokenize-x/tx-tools v0.0.0-20251006151522-f6df01ec2033
 	go.uber.org/zap v1.27.0
@@ -86,7 +86,6 @@ require (
 	github.com/cosmos/gogoproto v1.7.0 // indirect
 	github.com/cosmos/iavl v1.2.4 // indirect
 	github.com/cosmos/ibc-go/v10 v10.3.0 // indirect
-	github.com/cosmos/ibc-go/v8 v8.7.0 // indirect
 	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.14.0 // indirect
 	github.com/danieljoos/wincred v1.2.1 // indirect

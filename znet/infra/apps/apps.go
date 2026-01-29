@@ -420,8 +420,8 @@ func (f *Factory) BridgeXRPLRelayers(
 		relayer := bridgexrpl.New(bridgexrpl.Config{
 			Name:    name,
 			HomeDir: filepath.Join(f.config.AppDir, name),
-			ContractPath: filepath.Clean(filepath.Join(f.config.RootDir, "../coreumbridge-xrpl", "contract", "artifacts",
-				"coreumbridge_xrpl.wasm")),
+			ContractPath: filepath.Clean(filepath.Join(f.config.RootDir, "../tx-xrpl-bridge", "contract", "artifacts",
+				"tx_xrpl_bridge.wasm")),
 			Mnemonics: bridgexrpl.RelayerMnemonics[i],
 			Quorum:    uint32(relayerCount),
 			AppInfo:   f.spec.DescribeApp(bridgexrpl.AppType, name),
