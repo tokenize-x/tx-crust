@@ -10,6 +10,8 @@ require (
 	github.com/CosmWasm/wasmd v0.60.2
 	github.com/cometbft/cometbft v0.38.19
 	github.com/cosmos/cosmos-sdk v0.53.4
+	github.com/cosmos/go-bip39 v1.0.0
+	github.com/ethereum/go-ethereum v1.15.11
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v4 v4.18.2
@@ -81,7 +83,6 @@ require (
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-db v1.1.1 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5 // indirect
-	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/gogoproto v1.7.0 // indirect
 	github.com/cosmos/iavl v1.2.4 // indirect
@@ -100,7 +101,6 @@ require (
 	github.com/emicklei/dot v1.6.4 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.32.4 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
-	github.com/ethereum/go-ethereum v1.15.11 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/getsentry/sentry-go v0.32.0 // indirect
