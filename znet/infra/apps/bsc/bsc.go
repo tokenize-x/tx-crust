@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	_ "embed"
+	"encoding/hex"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -228,7 +229,9 @@ func ExtractKeyPairsFromSeed(seedPhrase string) ([]byte, string, error) {
 // savePrivateKeyFile creates private key file of the default validator.
 func (b BSC) savePrivateKeyFile() error {
 	fpath := filepath.Join(b.config.HomeDir, privateKeyFileName)
-	return os.WriteFile(fpath, b.config.FaucetPrivateKey, 0o600)
+	encodedKey := make([]byte, len(b.config.FaucetPrivateKey)*2)
+	hex.Encode(encodedKey, b.config.FaucetPrivateKey)
+	return os.WriteFile(fpath, encodedKey, 0o600)
 }
 
 // saveRunScriptFile renders `run.tmpl` and writes it as an executable entrypoint.
