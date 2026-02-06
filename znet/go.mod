@@ -20,6 +20,7 @@ require (
 	github.com/rubblelabs/ripple v0.0.0-20240109131116-f99dee0aa0f3
 	github.com/samber/lo v1.49.1
 	github.com/spf13/cobra v1.9.1
+	github.com/stretchr/testify v1.10.0
 	github.com/tokenize-x/tx-chain/v6 v6.0.0-20251223140913-ae2b7a57eb7e
 	github.com/tokenize-x/tx-crust v0.0.0-20250422105139-051d68f6bb18
 	github.com/tokenize-x/tx-tools v0.0.0-20251006151522-f6df01ec2033
@@ -194,7 +195,6 @@ require (
 	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
