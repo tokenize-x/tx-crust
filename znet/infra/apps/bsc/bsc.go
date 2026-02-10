@@ -98,6 +98,7 @@ func (b BSC) HealthCheck(ctx context.Context) error {
 	req := must.HTTPRequest(
 		http.NewRequestWithContext(ctx, http.MethodPost, rpcURL, strings.NewReader(reqBody)),
 	)
+	req.Header.Set("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return retry.Retryable(errors.WithStack(err))
@@ -168,17 +169,20 @@ func (b BSC) prepare(_ context.Context) error {
 	return b.saveRunScriptFile()
 }
 
-// saveGenesisFile writes a minimal Clique PoA genesis using the template.
+// saveGenesisFile writes a Parlia PoA genesis using the template.
 func (b BSC) saveGenesisFile() error {
-	// Build the padded extraData field required by Clique:
+	// Build the padded extraData field required by Parlia (Luban format):
 	validatorAddr := strings.TrimPrefix(b.config.FaucetAddr, "0x")
 	if len(validatorAddr) != 40 {
 		return errors.Errorf("validator address must be 20 bytes hex: %s", b.config.FaucetAddr)
 	}
-	// 32 zero‑bytes + validator (20 bytes) + 65 zero‑bytes = 97 bytes total.
-	pad := strings.Repeat("0", 64)     // 32 bytes in hex
-	suffix := strings.Repeat("0", 130) // 65 bytes in hex
-	extraData := "0x" + pad + validatorAddr + suffix
+	// Luban-format extraData:
+	// 32 vanity bytes + 1 count byte + 20 address bytes + 48 BLS pubkey bytes + 65 seal bytes
+	vanity := strings.Repeat("0", 64)  // 32 bytes in hex
+	count := "01"                       // 1 validator
+	blsKey := strings.Repeat("0", 96)  // 48 zero bytes (BLS pubkey placeholder)
+	seal := strings.Repeat("0", 130)   // 65 zero bytes (seal placeholder)
+	extraData := "0x" + vanity + count + validatorAddr + blsKey + seal
 
 	genesisArgs := struct {
 		ChainID   int64
