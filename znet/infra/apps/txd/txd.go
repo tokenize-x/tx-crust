@@ -34,13 +34,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 
-	"github.com/tokenize-x/tx-chain/v6/pkg/client"
-	txchainconfig "github.com/tokenize-x/tx-chain/v6/pkg/config"
-	txchainconstant "github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
-	assetft "github.com/tokenize-x/tx-chain/v6/x/asset/ft"
-	assetfttypes "github.com/tokenize-x/tx-chain/v6/x/asset/ft/types"
-	"github.com/tokenize-x/tx-chain/v6/x/dex"
-	dextypes "github.com/tokenize-x/tx-chain/v6/x/dex/types"
+	"github.com/tokenize-x/tx-chain/v7/pkg/client"
+	txchainconfig "github.com/tokenize-x/tx-chain/v7/pkg/config"
+	txchainconstant "github.com/tokenize-x/tx-chain/v7/pkg/config/constant"
+	assetft "github.com/tokenize-x/tx-chain/v7/x/asset/ft"
+	assetfttypes "github.com/tokenize-x/tx-chain/v7/x/asset/ft/types"
+	"github.com/tokenize-x/tx-chain/v7/x/dex"
+	dextypes "github.com/tokenize-x/tx-chain/v7/x/dex/types"
 	"github.com/tokenize-x/tx-crust/build/tools"
 	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-crust/znet/infra/cosmoschain"
@@ -373,7 +373,7 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 
 	inputPath := filepath.Join(configDir, "genesis-creation-input.json")
 
-	if err := os.WriteFile(inputPath, inputConfig, 0644); err != nil {
+	if err := os.WriteFile(inputPath, inputConfig, 0o644); err != nil {
 		return err
 	}
 
@@ -388,7 +388,7 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 	var binaryPath string
 	if c.config.BinaryVersion != "" {
 		binaryName := "txd"
-		if c.config.BinaryVersion == "v5.0.3" {
+		if c.config.BinaryVersion == "v6.0.0" {
 			binaryName = "cored"
 		}
 		binaryPath = filepath.Join(
@@ -458,7 +458,7 @@ func (c TXd) dockerBinaryPath() string {
 		platform = tools.TargetPlatformLocal
 	}
 	txdStandardBinName := "txd"
-	if c.Config().BinaryVersion == "v5.0.3" {
+	if c.Config().BinaryVersion == "v6.0.0" {
 		txdStandardBinName = "cored"
 	}
 	txdBinName := txdStandardBinName

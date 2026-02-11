@@ -17,7 +17,7 @@ import (
 	"github.com/prometheus/common/expfmt"
 	"github.com/samber/lo"
 
-	txchainconstant "github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
+	txchainconstant "github.com/tokenize-x/tx-chain/v7/pkg/config/constant"
 	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/txd"
 	"github.com/tokenize-x/tx-crust/znet/infra/cosmoschain"

@@ -9,7 +9,7 @@ import (
 	rippledata "github.com/rubblelabs/ripple/data"
 	"github.com/samber/lo"
 
-	txchainconfig "github.com/tokenize-x/tx-chain/v6/pkg/config"
+	txchainconfig "github.com/tokenize-x/tx-chain/v7/pkg/config"
 )
 
 // HDPath is the hd path of XRPL key.
