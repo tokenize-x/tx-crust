@@ -536,7 +536,7 @@ func (c TXd) prepare(ctx context.Context) error {
 	)
 	for upgrade, binary := range upgrades {
 		var pathPrefix string
-		if binary == "txd" {
+		if runtime.GOOS == tools.OSLinux && binary == "txd" {
 			pathPrefix = localBinaryPath
 		} else {
 			pathPrefix = dockerLinuxBinaryPath
