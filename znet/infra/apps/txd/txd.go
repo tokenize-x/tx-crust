@@ -373,7 +373,7 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 
 	inputPath := filepath.Join(configDir, "genesis-creation-input.json")
 
-	if err := os.WriteFile(inputPath, inputConfig, 0o644); err != nil {
+	if err := os.WriteFile(inputPath, inputConfig, 0644); err != nil {
 		return err
 	}
 
