@@ -34,13 +34,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 
-	"github.com/tokenize-x/tx-chain/v6/pkg/client"
-	txchainconfig "github.com/tokenize-x/tx-chain/v6/pkg/config"
-	txchainconstant "github.com/tokenize-x/tx-chain/v6/pkg/config/constant"
-	assetft "github.com/tokenize-x/tx-chain/v6/x/asset/ft"
-	assetfttypes "github.com/tokenize-x/tx-chain/v6/x/asset/ft/types"
-	"github.com/tokenize-x/tx-chain/v6/x/dex"
-	dextypes "github.com/tokenize-x/tx-chain/v6/x/dex/types"
+	"github.com/tokenize-x/tx-chain/v7/pkg/client"
+	txchainconfig "github.com/tokenize-x/tx-chain/v7/pkg/config"
+	txchainconstant "github.com/tokenize-x/tx-chain/v7/pkg/config/constant"
+	assetft "github.com/tokenize-x/tx-chain/v7/x/asset/ft"
+	assetfttypes "github.com/tokenize-x/tx-chain/v7/x/asset/ft/types"
+	"github.com/tokenize-x/tx-chain/v7/x/dex"
+	dextypes "github.com/tokenize-x/tx-chain/v7/x/dex/types"
 	"github.com/tokenize-x/tx-crust/build/tools"
 	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-crust/znet/infra/cosmoschain"
@@ -388,9 +388,6 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 	var binaryPath string
 	if c.config.BinaryVersion != "" {
 		binaryName := "txd"
-		if c.config.BinaryVersion == "v5.0.3" {
-			binaryName = "cored"
-		}
 		binaryPath = filepath.Join(
 			c.config.BinDir,
 			".cache",
@@ -457,11 +454,7 @@ func (c TXd) dockerBinaryPath() string {
 	if c.Config().BinaryVersion == "" && runtime.GOOS == tools.OSLinux {
 		platform = tools.TargetPlatformLocal
 	}
-	txdStandardBinName := "txd"
-	if c.Config().BinaryVersion == "v5.0.3" {
-		txdStandardBinName = "cored"
-	}
-	txdBinName := txdStandardBinName
+	txdBinName := "txd"
 	txdStandardPath := filepath.Join(
 		c.config.BinDir, ".cache", "txd", platform.String(), "bin",
 	)
@@ -469,7 +462,7 @@ func (c TXd) dockerBinaryPath() string {
 
 	// by default the binary version is latest, but if `BinaryVersion` is provided we take it as initial
 	if c.Config().BinaryVersion != "" {
-		return filepath.Join(txdStandardPath, txdStandardBinName+"-"+c.Config().BinaryVersion)
+		return filepath.Join(txdStandardPath, txdBinName+"-"+c.Config().BinaryVersion)
 	}
 	return filepath.Join(txdPath, txdBinName)
 }

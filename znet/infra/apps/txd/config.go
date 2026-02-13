@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/tokenize-x/tx-chain/v6/pkg/config"
+	"github.com/tokenize-x/tx-chain/v7/pkg/config"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 )
 
