@@ -14,6 +14,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"golang.org/x/mod/modfile"
 
 	"github.com/tokenize-x/tx-crust/build/tools"
 	"github.com/tokenize-x/tx-crust/build/types"
@@ -60,31 +61,99 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 		return err
 	}
 
-	return onModule(repoPath, func(path string) error {
-		goCodePresent, err := containsGoCode(path)
+	var modulePaths []string
+
+	// Check if go.work exists
+	workFilePath := filepath.Join(repoPath, "go.work")
+	absRepoPath := must.String(filepath.Abs(repoPath))
+	if _, err := os.Stat(workFilePath); err == nil {
+		// Parse go.work to get module paths
+		parsedPaths, err := parseGoWork(workFilePath)
+		if err != nil {
+			return errors.Wrap(err, "failed to parse go.work")
+		}
+
+		// Use paths from go.work (they are relative to repo root)
+		modulePaths = parsedPaths
+	} else {
+		// If go.work doesn't exist, collect all modules found in the repo (including root module)
+		// onModule walks the directory tree and finds all go.mod files
+		var absModulePaths []string
+		if err := onModule(repoPath, func(path string) error {
+			absModulePaths = append(absModulePaths, path)
+			return nil
+		}); err != nil {
+			return err
+		}
+
+		// Convert absolute paths to relative paths from repo root
+		for _, absPath := range absModulePaths {
+			relPath, err := filepath.Rel(absRepoPath, absPath)
+			if err != nil {
+				return errors.Wrapf(err, "failed to get relative path for module '%s'", absPath)
+			}
+			modulePaths = append(modulePaths, relPath)
+		}
+	}
+
+	// Filter out modules without Go code
+	var validModulePaths []string
+	for _, modulePath := range modulePaths {
+		// Convert relative path to absolute for checking Go code
+		absModulePath := filepath.Join(absRepoPath, modulePath)
+		goCodePresent, err := containsGoCode(absModulePath)
 		if err != nil {
 			return err
 		}
-		if !goCodePresent {
-			log.Info("No code to lint", zap.String("path", path))
-			return nil
+		if goCodePresent {
+			validModulePaths = append(validModulePaths, modulePath)
+		} else {
+			log.Info("No code to lint", zap.String("path", modulePath))
 		}
+	}
 
-		log.Info("Running linter", zap.String("path", path))
-
-		if len(customLinters) > 0 {
-			if err = EnsureCustomGolangCI(ctx, customLinters); err != nil {
-				return err
-			}
-		}
-
-		cmd := exec.Command(must.String(filepath.Abs("bin/golangci-lint")), "run", "--config", config)
-		cmd.Dir = repoPath
-		if err := libexec.Exec(ctx, cmd); err != nil {
-			return errors.Wrapf(err, "linter errors found in module '%s'", path)
-		}
+	if len(validModulePaths) == 0 {
+		log.Info("No modules with Go code to lint")
 		return nil
-	})
+	}
+
+	log.Info("Running linter", zap.Strings("paths", validModulePaths))
+
+	if len(customLinters) > 0 {
+		if err := EnsureCustomGolangCI(ctx, customLinters); err != nil {
+			return err
+		}
+	}
+
+	// Run a single lint command from repo root with all module paths as arguments
+	args := append([]string{"run", "--config", config}, validModulePaths...)
+	cmd := exec.Command(must.String(filepath.Abs("bin/golangci-lint")), args...)
+	cmd.Dir = repoPath
+	if err := libexec.Exec(ctx, cmd); err != nil {
+		return errors.Wrapf(err, "linter errors found in modules: %v", validModulePaths)
+	}
+	return nil
+}
+
+// parseGoWork parses a go.work file and returns the list of module paths from the "use" directive.
+// It uses the standard golang.org/x/mod/modfile package to parse the workspace file.
+func parseGoWork(workFilePath string) ([]string, error) {
+	data, err := os.ReadFile(workFilePath)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	workFile, err := modfile.ParseWork(workFilePath, data, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse go.work file")
+	}
+
+	modulePaths := make([]string, 0, len(workFile.Use))
+	for _, use := range workFile.Use {
+		modulePaths = append(modulePaths, use.Path)
+	}
+
+	return modulePaths, nil
 }
 
 // EnsureCustomGolangCI ensures that a customized go linter is available.
