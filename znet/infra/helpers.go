@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/tokenize-x/tx-chain/v6/pkg/client"
+	"github.com/tokenize-x/tx-chain/v7/pkg/client"
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 	"github.com/tokenize-x/tx-tools/pkg/retry"
