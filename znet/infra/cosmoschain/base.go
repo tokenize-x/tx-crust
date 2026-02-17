@@ -21,8 +21,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/tokenize-x/tx-chain/v6/pkg/client"
-	"github.com/tokenize-x/tx-chain/v6/pkg/config"
+	"github.com/tokenize-x/tx-chain/v7/pkg/client"
+	"github.com/tokenize-x/tx-chain/v7/pkg/config"
 	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-crust/znet/pkg/tools"
