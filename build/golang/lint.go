@@ -64,8 +64,11 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 	workFilePath := filepath.Join(repoPath, "go.work")
 	absRepoPath := must.String(filepath.Abs(repoPath))
 	if _, err := os.Stat(workFilePath); err != nil {
-		log.Info("No go.work file, nothing to lint")
-		return nil
+		if os.IsNotExist(err) {
+			log.Info("No go.work file, nothing to lint")
+			return nil
+		}
+		return errors.WithStack(err)
 	}
 
 	modulePaths, err := parseGoWork(ctx, workFilePath)
@@ -102,8 +105,26 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 		}
 	}
 
-	// Run a single lint command from repo root with all module paths as arguments
-	args := append([]string{"run", "--config", config}, validModulePaths...)
+	// When go.mod exists next to go.work, a single "./..." lints the whole workspace without duplication.
+	// When the root has no go.mod (only submodules in go.work), "./..." can fail; pass each module path explicitly.
+	workDir := filepath.Dir(workFilePath)
+	goModAtRoot := filepath.Join(workDir, "go.mod")
+	_, hasRootGoMod := os.Stat(goModAtRoot)
+
+	var lintDirs []string
+	if hasRootGoMod == nil {
+		lintDirs = []string{"./..."}
+	} else {
+		for _, p := range validModulePaths {
+			if p == "." || p == "" {
+				lintDirs = append(lintDirs, "./...")
+			} else {
+				lintDirs = append(lintDirs, p+"/...")
+			}
+		}
+	}
+
+	args := append([]string{"run", "--config", config}, lintDirs...)
 	cmd := exec.Command(must.String(filepath.Abs("bin/golangci-lint")), args...)
 	cmd.Dir = repoPath
 	if err := libexec.Exec(ctx, cmd); err != nil {
@@ -112,7 +133,9 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 	return nil
 }
 
-// goWorkEditJSON is the structure produced by "go work edit -json".
+// goWorkEditJSON is the structure produced by "go work edit -json". Field names match the Go tool output (PascalCase).
+//
+//nolint:tagliatelle // external JSON from "go work edit -json" uses PascalCase
 type goWorkEditJSON struct {
 	Use []struct {
 		DiskPath string `json:"DiskPath"`
