@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	_ "embed"
-	"encoding/json"
 	"io"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"text/template"
 
 	"github.com/pkg/errors"
@@ -61,43 +61,26 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 		return err
 	}
 
-	workFilePath := filepath.Join(repoPath, "go.work")
 	absRepoPath := must.String(filepath.Abs(repoPath))
-	if _, err := os.Stat(workFilePath); err != nil {
-		if os.IsNotExist(err) {
-			log.Info("No go.work file, nothing to lint")
-			return nil
-		}
-		return errors.WithStack(err)
-	}
-
-	modulePaths, err := parseGoWork(ctx, workFilePath)
+	lintPaths, err := subGoModuleDirs(absRepoPath)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse go.work")
+		return err
 	}
-
-	// Filter out modules without Go code
-	var validModulePaths []string
-	for _, modulePath := range modulePaths {
-		// Convert relative path to absolute for checking Go code
-		absModulePath := filepath.Join(absRepoPath, modulePath)
-		goCodePresent, err := containsGoCode(absModulePath)
-		if err != nil {
-			return err
-		}
-		if goCodePresent {
-			validModulePaths = append(validModulePaths, modulePath)
-		} else {
-			log.Info("No code to lint", zap.String("path", modulePath))
-		}
-	}
-
-	if len(validModulePaths) == 0 {
-		log.Info("No modules with Go code to lint")
+	if len(lintPaths) == 0 {
+		log.Info("No Go modules to lint")
 		return nil
 	}
 
-	log.Info("Running linter", zap.Strings("paths", validModulePaths))
+	var lintDirs []string
+	for _, p := range lintPaths {
+		if p == "." || p == "" {
+			lintDirs = append(lintDirs, "./...")
+		} else {
+			lintDirs = append(lintDirs, p+"/...")
+		}
+	}
+
+	log.Info("Running linter", zap.String("paths", strings.Join(lintPaths, ", ")))
 
 	if len(customLinters) > 0 {
 		if err := EnsureCustomGolangCI(ctx, customLinters); err != nil {
@@ -105,65 +88,59 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 		}
 	}
 
-	var lintDirs []string
-
-	// for all submodules, lint sub directories of each submodule
-	for _, p := range validModulePaths {
-		if p != "." && p != "" {
-			lintDirs = append(lintDirs, p+"/...")
-		}
-	}
-
-	workDir := filepath.Dir(workFilePath)
-	goModAtRoot := filepath.Join(workDir, "go.mod")
-	_, hasRootGoMod := os.Stat(goModAtRoot)
-
-	// if the root has a go.mod, lint the root as well
-	if hasRootGoMod == nil {
-		lintDirs = append(lintDirs, "./...")
-	}
-
 	args := append([]string{"run", "--config", config}, lintDirs...)
 	cmd := exec.Command(must.String(filepath.Abs("bin/golangci-lint")), args...)
 	cmd.Dir = repoPath
 	if err := libexec.Exec(ctx, cmd); err != nil {
-		return errors.Wrapf(err, "linter errors found in modules: %v", validModulePaths)
+		return errors.Wrapf(err, "linter errors found in: %s", strings.Join(lintPaths, ", "))
 	}
 	return nil
 }
 
-// goWorkEditJSON is the structure produced by "go work edit -json". Field names match the Go tool output (PascalCase).
-//
-//nolint:tagliatelle // external JSON from "go work edit -json" uses PascalCase
-type goWorkEditJSON struct {
-	Use []struct {
-		DiskPath string `json:"DiskPath"`
-	} `json:"Use"`
+// subGoModuleDirs returns the repo root (".") and each subdirectory
+// that is a Go module (contains go.mod), so each module is passed explicitly to golangci-lint.
+// Skips dirs matching lintNewLinesSkipDirsRegexps.
+func subGoModuleDirs(absRepoPath string) ([]string, error) {
+	skipRegexps, err := parseRegexps(lintNewLinesSkipDirsRegexps)
+	if err != nil {
+		return nil, err
+	}
+	var out []string
+	if isGoModule(absRepoPath) {
+		out = append(out, ".")
+	}
+	entries, err := os.ReadDir(absRepoPath)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		skip := false
+		for _, reg := range skipRegexps {
+			if reg.MatchString(e.Name()) {
+				skip = true
+				break
+			}
+		}
+		if skip {
+			continue
+		}
+		subdir := filepath.Join(absRepoPath, e.Name())
+		if isGoModule(subdir) {
+			out = append(out, e.Name())
+		}
+	}
+	return out, nil
 }
 
-// parseGoWork runs "go work edit -json" and returns the list of module disk paths from the Use array.
-func parseGoWork(ctx context.Context, workFilePath string) ([]string, error) {
-	workDir := filepath.Dir(workFilePath)
-	out := &bytes.Buffer{}
-	cmd := exec.Command(tools.Path("bin/go", tools.TargetPlatformLocal), "work", "edit", "-json")
-	cmd.Stdout = out
-	cmd.Dir = workDir
-	cmd.Env = env()
-
-	if err := libexec.Exec(ctx, cmd); err != nil {
-		return nil, errors.Wrap(err, "go work edit -json failed")
+func isGoModule(path string) bool {
+	info, err := os.Stat(filepath.Join(path, "go.mod"))
+	if err != nil {
+		return false
 	}
-
-	var work goWorkEditJSON
-	if err := json.Unmarshal(out.Bytes(), &work); err != nil {
-		return nil, errors.Wrap(err, "failed to parse go work edit -json output")
-	}
-
-	modulePaths := make([]string, 0, len(work.Use))
-	for _, use := range work.Use {
-		modulePaths = append(modulePaths, use.DiskPath)
-	}
-	return modulePaths, nil
+	return !info.IsDir()
 }
 
 // EnsureCustomGolangCI ensures that a customized go linter is available.
