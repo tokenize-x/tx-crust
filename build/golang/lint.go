@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"text/template"
 
 	"github.com/pkg/errors"
@@ -60,31 +61,86 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 		return err
 	}
 
-	return onModule(repoPath, func(path string) error {
-		goCodePresent, err := containsGoCode(path)
-		if err != nil {
+	absRepoPath := must.String(filepath.Abs(repoPath))
+	lintPaths, err := subGoModuleDirs(absRepoPath)
+	if err != nil {
+		return err
+	}
+	if len(lintPaths) == 0 {
+		log.Info("No Go modules to lint")
+		return nil
+	}
+
+	var lintDirs []string
+	for _, p := range lintPaths {
+		if p == "." || p == "" {
+			lintDirs = append(lintDirs, "./...")
+		} else {
+			lintDirs = append(lintDirs, p+"/...")
+		}
+	}
+
+	log.Info("Running linter", zap.String("paths", strings.Join(lintPaths, ", ")))
+
+	if len(customLinters) > 0 {
+		if err := EnsureCustomGolangCI(ctx, customLinters); err != nil {
 			return err
 		}
-		if !goCodePresent {
-			log.Info("No code to lint", zap.String("path", path))
-			return nil
+	}
+
+	args := append([]string{"run", "--config", config}, lintDirs...)
+	cmd := exec.Command(must.String(filepath.Abs("bin/golangci-lint")), args...)
+	cmd.Dir = repoPath
+	if err := libexec.Exec(ctx, cmd); err != nil {
+		return errors.Wrapf(err, "linter errors found in: %s", strings.Join(lintPaths, ", "))
+	}
+	return nil
+}
+
+// subGoModuleDirs returns the repo root (".") and each subdirectory
+// that is a Go module (contains go.mod), so each module is passed explicitly to golangci-lint.
+// Skips dirs matching lintNewLinesSkipDirsRegexps.
+func subGoModuleDirs(absRepoPath string) ([]string, error) {
+	skipRegexps, err := parseRegexps(lintNewLinesSkipDirsRegexps)
+	if err != nil {
+		return nil, err
+	}
+	var out []string
+	if isGoModule(absRepoPath) {
+		out = append(out, ".")
+	}
+	entries, err := os.ReadDir(absRepoPath)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
 		}
-
-		log.Info("Running linter", zap.String("path", path))
-
-		if len(customLinters) > 0 {
-			if err = EnsureCustomGolangCI(ctx, customLinters); err != nil {
-				return err
+		skip := false
+		for _, reg := range skipRegexps {
+			if reg.MatchString(e.Name()) {
+				skip = true
+				break
 			}
 		}
-
-		cmd := exec.Command(must.String(filepath.Abs("bin/golangci-lint")), "run", "--config", config)
-		cmd.Dir = repoPath
-		if err := libexec.Exec(ctx, cmd); err != nil {
-			return errors.Wrapf(err, "linter errors found in module '%s'", path)
+		if skip {
+			continue
 		}
-		return nil
-	})
+		subdir := filepath.Join(absRepoPath, e.Name())
+		if isGoModule(subdir) {
+			out = append(out, e.Name())
+		}
+	}
+	return out, nil
+}
+
+func isGoModule(path string) bool {
+	info, err := os.Stat(filepath.Join(path, "go.mod"))
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
 }
 
 // EnsureCustomGolangCI ensures that a customized go linter is available.
