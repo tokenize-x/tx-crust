@@ -105,23 +105,22 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 		}
 	}
 
-	// When go.mod exists next to go.work, a single "./..." lints the whole workspace without duplication.
-	// When the root has no go.mod (only submodules in go.work), "./..." can fail; pass each module path explicitly.
+	var lintDirs []string
+
+	// for all submodules, lint sub directories of each submodule
+	for _, p := range validModulePaths {
+		if p != "." && p != "" {
+			lintDirs = append(lintDirs, p+"/...")
+		}
+	}
+
 	workDir := filepath.Dir(workFilePath)
 	goModAtRoot := filepath.Join(workDir, "go.mod")
 	_, hasRootGoMod := os.Stat(goModAtRoot)
 
-	var lintDirs []string
+	// if the root has a go.mod, lint the root as well
 	if hasRootGoMod == nil {
-		lintDirs = []string{"./..."}
-	} else {
-		for _, p := range validModulePaths {
-			if p == "." || p == "" {
-				lintDirs = append(lintDirs, "./...")
-			} else {
-				lintDirs = append(lintDirs, p+"/...")
-			}
-		}
+		lintDirs = append(lintDirs, "./...")
 	}
 
 	args := append([]string{"run", "--config", config}, lintDirs...)
