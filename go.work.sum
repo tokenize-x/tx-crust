@@ -2025,8 +2025,8 @@ github.com/tklauser/numcpus v0.6.1/go.mod h1:1XfjsgE2zo8GVw7POkMbHENHzVg3GzmoZ9f
 github.com/tklauser/numcpus v0.10.0/go.mod h1:BiTKazU708GQTYF4mB+cmlpT2Is1gLk7XVuEeem8LsQ=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8 h1:ndzgwNDnKIqyCvHTXaCqh9KlOWKvBry6nuXMJmonVsE=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
-github.com/tokenize-x/tx-chain/v7 v7.0.0-20260212090447-388e1cf45a9c h1:TwB57cpO1c4DI7/nkaZ0x1q0owBYM7gUSWrSy8SzAbk=
-github.com/tokenize-x/tx-chain/v7 v7.0.0-20260212090447-388e1cf45a9c/go.mod h1:sqWS+g6Cx8lFORDEOpYeAAZAgN0wyKrbWB+mIp+opVA=
+github.com/tokenize-x/tx-chain/v7 v7.0.0-20260217111039-9296d325fd38 h1:IrSrZgpUqsVX4dHl9+Ixe1nbB1jMlAazk5/LrP08Hk0=
+github.com/tokenize-x/tx-chain/v7 v7.0.0-20260217111039-9296d325fd38/go.mod h1:KSjXVCX8WKHK1gWTE2s6+xh2x9W7XpN69xNuwAAAPFw=
 github.com/tomarrell/wrapcheck/v2 v2.8.1 h1:HxSqDSN0sAt0yJYsrcYVoEeyM4aI9yAm3KQpIXDJRhQ=
 github.com/tomarrell/wrapcheck/v2 v2.8.1/go.mod h1:/n2Q3NZ4XFT50ho6Hbxg+RV1uyo2Uow/Vdm9NQcl5SE=
 github.com/tommy-muehle/go-mnd/v2 v2.5.1 h1:NowYhSdyE/1zwK9QCLeRb6USWdoif80Ie+v+yU8u1Zw=
