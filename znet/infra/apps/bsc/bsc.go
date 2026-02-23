@@ -38,10 +38,14 @@ var (
 )
 
 const (
+	// AppType is the type of bsc application.
 	AppType infra.AppType = "bsc"
 
-	DefaultRPCPort = 8545 // HTTP JSON‑RPC
-	DefaultWSPort  = 8546 // WebSocket
+	// DefaultRPCPort is the default port for HTTP JSON‑RPC.
+	DefaultRPCPort = 8545
+
+	// DefaultWSPort is the default port for WebSocket.
+	DefaultWSPort = 8546
 
 	dockerEntrypoint   = "run.sh"
 	genesisFileName    = "genesis.json"
@@ -178,10 +182,10 @@ func (b BSC) saveGenesisFile() error {
 	}
 	// Luban-format extraData:
 	// 32 vanity bytes + 1 count byte + 20 address bytes + 48 BLS pubkey bytes + 65 seal bytes
-	vanity := strings.Repeat("0", 64)  // 32 bytes in hex
-	count := "01"                       // 1 validator
-	blsKey := strings.Repeat("0", 96)  // 48 zero bytes (BLS pubkey placeholder)
-	seal := strings.Repeat("0", 130)   // 65 zero bytes (seal placeholder)
+	vanity := strings.Repeat("0", 64) // 32 bytes in hex
+	count := "01"                     // 1 validator
+	blsKey := strings.Repeat("0", 96) // 48 zero bytes (BLS pubkey placeholder)
+	seal := strings.Repeat("0", 130)  // 65 zero bytes (seal placeholder)
 	extraData := "0x" + vanity + count + validatorAddr + blsKey + seal
 
 	genesisArgs := struct {
@@ -214,6 +218,7 @@ func (b BSC) savePasswordFile() error {
 	return os.WriteFile(fpath, []byte{}, 0o600)
 }
 
+// ExtractKeyPairsFromSeed extracts the private key and address from a seed phrase.
 func ExtractKeyPairsFromSeed(seedPhrase string) ([]byte, string, error) {
 	seed := bip39.NewSeed(seedPhrase, keyring.DefaultBIP39Passphrase)
 	masterPriv, ch := hd.ComputeMastersFromSeed(seed)

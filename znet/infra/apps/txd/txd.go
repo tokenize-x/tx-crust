@@ -387,11 +387,11 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 	// get particular binary path from or run using the default(compiled) binary
 	var binaryPath string
 	if c.config.BinaryVersion != "" {
-		binaryName := "txd"
+		binaryName := string(AppType)
 		binaryPath = filepath.Join(
 			c.config.BinDir,
 			".cache",
-			"txd",
+			string(AppType),
 			tools.TargetPlatformLocal.String(), "bin",
 			binaryName+"-"+c.Config().BinaryVersion,
 		)
