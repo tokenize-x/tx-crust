@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
-	"github.com/tokenize-x/tx-crust/znet/infra/apps/bsc"
 
 	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/callisto"
@@ -224,8 +223,7 @@ func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, txdVersi
 	}
 
 	if pMap[ProfileBSC] {
-		var bscApp bsc.BSC
-		bscApp = appF.BSC(AppPrefixBSC)
+		bscApp := appF.BSC(AppPrefixBSC)
 		appSet = append(appSet, bscApp)
 	}
 
