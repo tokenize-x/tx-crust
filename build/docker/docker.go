@@ -23,7 +23,9 @@ import (
 type ImageOS string
 
 const (
+	// ImageOSAlpine is the Alpine Linux base image.
 	ImageOSAlpine ImageOS = "alpine"
+	// ImageOSDebian is the Debian base image.
 	ImageOSDebian ImageOS = "debian"
 )
 

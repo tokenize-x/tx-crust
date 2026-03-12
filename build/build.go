@@ -171,6 +171,7 @@ func Main(commands map[string]types.Command, flagRegistrars ...FlagRegistrar) {
 
 		// Inject parsed flag values into the context before any command runs.
 		for _, fn := range ctxFuncs {
+			//nolint:fatcontext
 			ctx = fn(ctx)
 		}
 
