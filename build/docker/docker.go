@@ -25,8 +25,6 @@ type ImageOS string
 const (
 	// ImageOSAlpine is the Alpine Linux base image.
 	ImageOSAlpine ImageOS = "alpine"
-	// ImageOSDebian is the Debian base image.
-	ImageOSDebian ImageOS = "debian"
 	// ImageOSUbuntu is the Ubuntu base image.
 	ImageOSUbuntu ImageOS = "ubuntu"
 )
@@ -36,8 +34,6 @@ func (o ImageOS) String() string {
 	switch o {
 	case ImageOSAlpine:
 		return "alpine:3.23.3"
-	case ImageOSDebian:
-		return "debian:12-slim"
 	case ImageOSUbuntu:
 		return "ubuntu:24.04"
 	default:
