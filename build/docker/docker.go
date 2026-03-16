@@ -27,6 +27,8 @@ const (
 	ImageOSAlpine ImageOS = "alpine"
 	// ImageOSDebian is the Debian base image.
 	ImageOSDebian ImageOS = "debian"
+	// ImageOSUbuntu is the Ubuntu base image.
+	ImageOSUbuntu ImageOS = "ubuntu"
 )
 
 // String returns the full Docker image reference (name:tag) for this OS.
@@ -36,6 +38,8 @@ func (o ImageOS) String() string {
 		return "alpine:3.23.3"
 	case ImageOSDebian:
 		return "debian:12-slim"
+	case ImageOSUbuntu:
+		return "ubuntu:24.04"
 	default:
 		panic("unknown ImageOS: " + string(o))
 	}
