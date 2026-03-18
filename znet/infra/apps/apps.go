@@ -18,7 +18,6 @@ import (
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/bigdipper"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/blockexplorer"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/bridgexrpl"
-    
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/callisto"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/faucet"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/gaiad"
