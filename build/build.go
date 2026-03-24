@@ -11,12 +11,18 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
 
 	"github.com/tokenize-x/tx-crust/build/types"
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 	"github.com/tokenize-x/tx-tools/pkg/must"
 	"github.com/tokenize-x/tx-tools/pkg/run"
 )
+
+// FlagRegistrar is called before flag parsing. It registers custom flags onto the
+// shared FlagSet and returns a function that, once called after parsing, injects
+// the resolved values into the context that is passed to every command.
+type FlagRegistrar func(*pflag.FlagSet) func(context.Context) context.Context
 
 const maxStack = 100
 
@@ -144,14 +150,29 @@ func (e Executor) Execute(ctx context.Context, paths []string) error {
 }
 
 // Main receives configuration and runs commands.
-func Main(commands map[string]types.Command) {
+// Optional flagRegistrars allow callers to inject custom flags; their resolved
+// values are placed into the context before the first command runs.
+func Main(commands map[string]types.Command, flagRegistrars ...FlagRegistrar) {
 	run.Tool("build", func(ctx context.Context) error {
 		var help bool
 
 		flags := logger.Flags(logger.ToolDefaultConfig, "build")
 		flags.BoolVarP(&help, "help", "h", false, "")
+
+		// Register caller-supplied flags before parsing so they are known to pflag.
+		ctxFuncs := make([]func(context.Context) context.Context, 0, len(flagRegistrars))
+		for _, reg := range flagRegistrars {
+			ctxFuncs = append(ctxFuncs, reg(flags))
+		}
+
 		if err := flags.Parse(os.Args[1:]); err != nil {
 			return err
+		}
+
+		// Inject parsed flag values into the context before any command runs.
+		for _, fn := range ctxFuncs {
+			//nolint:fatcontext
+			ctx = fn(ctx)
 		}
 
 		if help {
