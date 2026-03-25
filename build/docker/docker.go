@@ -19,11 +19,27 @@ import (
 	"github.com/tokenize-x/tx-tools/pkg/logger"
 )
 
-// Tags used to build our docker images.
+// ImageOS identifies the base OS for a Docker image.
+type ImageOS string
+
 const (
-	AlpineImage = "alpine:3.20.3"
-	UbuntuImage = "ubuntu:24.04"
+	// ImageOSAlpine is the Alpine Linux base image.
+	ImageOSAlpine ImageOS = "alpine"
+	// ImageOSUbuntu is the Ubuntu base image.
+	ImageOSUbuntu ImageOS = "ubuntu"
 )
+
+// String returns the full Docker image reference (name:tag) for this OS.
+func (o ImageOS) String() string {
+	switch o {
+	case ImageOSAlpine:
+		return "alpine:3.23.3"
+	case ImageOSUbuntu:
+		return "ubuntu:24.04"
+	default:
+		panic("unknown ImageOS: " + string(o))
+	}
+}
 
 // Label used to tag docker resources created by tx-crust.
 const (
