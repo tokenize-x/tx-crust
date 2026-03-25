@@ -24,7 +24,6 @@ const (
 	AppPrefixMonitoring = "monitoring"
 	AppPrefixXRPL       = "xrpl"
 	AppPrefixBridgeXRPL = "bridge-xrpl"
-	AppPrefixBSC        = "bsc"
 )
 
 // Predefined Profiles.
@@ -40,7 +39,6 @@ const (
 	ProfileXRPL       = "xrpl"
 	ProfileXRPLBridge = "bridge-xrpl"
 	ProfileDEX        = "dex"
-	ProfileBSC        = "bsc"
 )
 
 var profiles = []string{
@@ -55,7 +53,6 @@ var profiles = []string{
 	ProfileXRPL,
 	ProfileXRPLBridge,
 	ProfileDEX,
-	ProfileBSC,
 }
 
 var defaultProfiles = []string{Profile1TXd}
@@ -220,11 +217,6 @@ func BuildAppSet(ctx context.Context, appF *Factory, profiles []string, txdVersi
 			return nil, txd.TXd{}, err
 		}
 		appSet = append(appSet, relayers...)
-	}
-
-	if pMap[ProfileBSC] {
-		bscApp := appF.BSC(AppPrefixBSC)
-		appSet = append(appSet, bscApp)
 	}
 
 	return appSet, txdApp, nil
