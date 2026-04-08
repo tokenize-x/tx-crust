@@ -177,7 +177,21 @@ func buildInDocker(ctx context.Context, config BinaryBuildConfig) error {
 		return err
 	}
 
-	// use goreleaser-cross with pre-installed cross-compilers
+	// goreleaser-cross is used here because CGO cross-compilation requires a C toolchain
+	// that matches the *target* platform, not the host. txd (and any consumer that sets
+	// CGOEnabled=true) links against libwasmvm, which is a Rust/C library. That means:
+	//   - a Darwin amd64 binary needs the macOS SDK + o64-clang  (osxcross)
+	//   - a Darwin arm64 binary needs the macOS SDK + oa64-clang (osxcross)
+	//   - a Linux amd64/arm64 glibc binary needs *-linux-gnu-gcc
+	//   - a Linux amd64/arm64 musl binary needs *-linux-musl-gcc  (downloaded separately
+	//     by the caller via the MuslCC tool and volume-mounted; not from this image)
+	//
+	// goreleaser-cross ships a Docker image with all of the above pre-installed:
+	// osxcross (Darwin CC) and the Linux GNU cross-compilers. The goreleaser binary
+	// itself is NOT invoked — the entrypoint is overridden to "go" below.
+	//
+	// The image tag is pinned to the Go version so the Go toolchain inside the container
+	// matches the version managed by tx-crust's tool registry.
 	image := "ghcr.io/goreleaser/goreleaser-cross:v" + goTool.GetVersion()
 
 	srcDir := must.String(filepath.Abs(".."))
