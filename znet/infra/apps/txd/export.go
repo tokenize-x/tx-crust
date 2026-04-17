@@ -32,6 +32,6 @@ func ExportGenesis(ctx context.Context, appName string, config infra.Config, mod
 
 	return exportedGenesisPath, libexec.Exec(
 		ctx,
-		exec.Command(txdWrapperPath, fullArgs...),
+		exec.CommandContext(ctx, txdWrapperPath, fullArgs...),
 	)
 }

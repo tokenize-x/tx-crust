@@ -27,7 +27,7 @@ func typosLint(ctx context.Context, deps types.DepsFunc) error {
 	config := typosLintConfigPath()
 
 	log.Info("Running typos linter", zap.String("path", repoPath))
-	cmd := exec.Command(tools.Path("bin/typos", tools.TargetPlatformLocal), "--config", config, ".")
+	cmd := exec.CommandContext(ctx, tools.Path("bin/typos", tools.TargetPlatformLocal), "--config", config, ".")
 	cmd.Dir = repoPath
 	if err := libexec.Exec(ctx, cmd); err != nil {
 		return errors.Wrapf(err, "linter errors found in module '%s'", repoPath)

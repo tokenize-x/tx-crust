@@ -423,7 +423,7 @@ func (gpt GoPackageTool) Ensure(ctx context.Context, platform TargetPlatform) er
 			return errors.Wrapf(err, "ensuring go failed")
 		}
 
-		cmd := exec.Command(Path("bin/go", TargetPlatformLocal), "install", gpt.Package+"@"+gpt.Version)
+		cmd := exec.CommandContext(ctx, Path("bin/go", TargetPlatformLocal), "install", gpt.Package+"@"+gpt.Version)
 		cmd.Env = append(os.Environ(), "GOBIN="+toolDir)
 
 		if err := libexec.Exec(ctx, cmd); err != nil {
@@ -608,20 +608,20 @@ func (ri RustInstaller) install(ctx context.Context, platform TargetPlatform) (r
 		"CARGO_HOME="+cargoHome,
 	)
 
-	cmdRustupInstaller := exec.Command(rustupInstaller,
+	cmdRustupInstaller := exec.CommandContext(ctx, rustupInstaller,
 		"-y",
 		"--no-update-default-toolchain",
 		"--no-modify-path",
 	)
 	cmdRustupInstaller.Env = env
 
-	cmdRustDefault := exec.Command(rustup,
+	cmdRustDefault := exec.CommandContext(ctx, rustup,
 		"default",
 		ri.Version,
 	)
 	cmdRustDefault.Env = env
 
-	cmdRustWASM := exec.Command(rustup,
+	cmdRustWASM := exec.CommandContext(ctx, rustup,
 		"target",
 		"add",
 		"wasm32-unknown-unknown",
@@ -745,7 +745,7 @@ func (ct CargoTool) Ensure(ctx context.Context, platform TargetPlatform) error {
 			return errors.Wrapf(err, "ensuring rust failed")
 		}
 
-		cmd := exec.Command(Path("bin/cargo", TargetPlatformLocal), "install",
+		cmd := exec.CommandContext(ctx, Path("bin/cargo", TargetPlatformLocal), "install",
 			"--version", ct.Version, "--force", "--locked",
 			"--root", toolDir, ct.Tool)
 		cmd.Env = append(os.Environ(), "RUSTC="+Path("bin/rustc", TargetPlatformLocal))

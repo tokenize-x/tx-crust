@@ -89,7 +89,7 @@ func lint(ctx context.Context, deps types.DepsFunc) error {
 	}
 
 	args := append([]string{"run", "--config", config}, lintDirs...)
-	cmd := exec.Command(must.String(filepath.Abs("bin/golangci-lint")), args...)
+	cmd := exec.CommandContext(ctx, must.String(filepath.Abs("bin/golangci-lint")), args...)
 	cmd.Dir = repoPath
 	if err := libexec.Exec(ctx, cmd); err != nil {
 		return errors.Wrapf(err, "linter errors found in: %s", strings.Join(lintPaths, ", "))
@@ -179,7 +179,7 @@ func EnsureCustomGolangCI(ctx context.Context, customLinters []map[string]interf
 			return err
 		}
 
-		cmd := exec.Command(tools.Path("bin/golangci-lint", tools.TargetPlatformLocal), "custom")
+		cmd := exec.CommandContext(ctx, tools.Path("bin/golangci-lint", tools.TargetPlatformLocal), "custom")
 		cmd.Dir = binDir
 		if err = libexec.Exec(ctx, cmd); err != nil {
 			return errors.Wrap(err, "could not make custom linter")

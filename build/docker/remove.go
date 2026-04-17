@@ -56,12 +56,12 @@ func removeImages(ctx context.Context) error {
 }
 
 func removeBuilder(ctx context.Context) error {
-	inspectCmd := exec.Command("docker", "buildx", "inspect", "tx-crust")
+	inspectCmd := exec.CommandContext(ctx, "docker", "buildx", "inspect", "tx-crust")
 	inspectCmd.Stderr = io.Discard
 	err := libexec.Exec(ctx, inspectCmd)
 
 	if err == nil {
-		return libexec.Exec(ctx, noStdout(exec.Command("docker", "buildx", "rm", "tx-crust")))
+		return libexec.Exec(ctx, noStdout(exec.CommandContext(ctx, "docker", "buildx", "rm", "tx-crust")))
 	}
 
 	return nil
@@ -69,7 +69,7 @@ func removeBuilder(ctx context.Context) error {
 
 func forContainer(ctx context.Context, fn func(ctx context.Context, containerID string, isRunning bool) error) error {
 	listBuf := &bytes.Buffer{}
-	listCmd := exec.Command("docker", "ps", "-aq", "--no-trunc", "--filter", "label="+LabelKey+"="+LabelValue)
+	listCmd := exec.CommandContext(ctx, "docker", "ps", "-aq", "--no-trunc", "--filter", "label="+LabelKey+"="+LabelValue)
 	listCmd.Stdout = listBuf
 	if err := libexec.Exec(ctx, listCmd); err != nil {
 		return err
@@ -81,7 +81,7 @@ func forContainer(ctx context.Context, fn func(ctx context.Context, containerID 
 	}
 
 	inspectBuf := &bytes.Buffer{}
-	inspectCmd := exec.Command("docker", append([]string{"inspect"}, strings.Split(listStr, "\n")...)...)
+	inspectCmd := exec.CommandContext(ctx, "docker", append([]string{"inspect"}, strings.Split(listStr, "\n")...)...)
 	inspectCmd.Stdout = inspectBuf
 
 	if err := libexec.Exec(ctx, inspectCmd); err != nil {
@@ -115,7 +115,8 @@ func forContainer(ctx context.Context, fn func(ctx context.Context, containerID 
 
 func forImage(ctx context.Context, fn func(ctx context.Context, imageID string) error) error {
 	listBuf := &bytes.Buffer{}
-	listCmd := exec.Command("docker", "image", "list", "-aq", "--no-trunc", "--filter", "label="+LabelKey+"="+LabelValue)
+	listCmd := exec.CommandContext(ctx, "docker", "image", "list",
+		"-aq", "--no-trunc", "--filter", "label="+LabelKey+"="+LabelValue)
 	listCmd.Stdout = listBuf
 	if err := libexec.Exec(ctx, listCmd); err != nil {
 		return err
@@ -140,16 +141,17 @@ func removeContainer(ctx context.Context, containerID string, isRunning bool) er
 	cmds := []*exec.Cmd{}
 	if isRunning {
 		// Everything will be removed, so we don't care about graceful shutdown
-		cmds = append(cmds, noStdout(exec.Command("docker", "kill", containerID)))
+		cmds = append(cmds, noStdout(exec.CommandContext(ctx, "docker", "kill", containerID)))
 	}
-	if err := libexec.Exec(ctx, append(cmds, noStdout(exec.Command("docker", "rm", containerID)))...); err != nil {
+	rmCmd := noStdout(exec.CommandContext(ctx, "docker", "rm", containerID))
+	if err := libexec.Exec(ctx, append(cmds, rmCmd)...); err != nil {
 		return errors.Wrapf(err, "deleting container `%s` failed", containerID)
 	}
 	return nil
 }
 
 func removeImage(ctx context.Context, imageID string) error {
-	if err := libexec.Exec(ctx, noStdout(exec.Command("docker", "rmi", "-f", imageID))); err != nil {
+	if err := libexec.Exec(ctx, noStdout(exec.CommandContext(ctx, "docker", "rmi", "-f", imageID))); err != nil {
 		return errors.Wrapf(err, "deleting image `%s` failed", imageID)
 	}
 	return nil
