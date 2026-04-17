@@ -21,7 +21,7 @@ const repoPath = "."
 // HeadHash returns hash of the latest commit in the repository.
 func HeadHash(ctx context.Context) (string, error) {
 	buf := &bytes.Buffer{}
-	cmd := exec.Command("git", "rev-parse", "HEAD")
+	cmd := exec.CommandContext(ctx, "git", "rev-parse", "HEAD")
 	cmd.Dir = repoPath
 	cmd.Stdout = buf
 	if err := libexec.Exec(ctx, cmd); err != nil {
@@ -52,7 +52,7 @@ func DirtyHeadHash(ctx context.Context) (string, error) {
 // HeadTags returns the list of tags applied to the latest commit.
 func HeadTags(ctx context.Context) ([]string, error) {
 	buf := &bytes.Buffer{}
-	cmd := exec.Command("git", "tag", "--points-at", "HEAD")
+	cmd := exec.CommandContext(ctx, "git", "tag", "--points-at", "HEAD")
 	cmd.Dir = repoPath
 	cmd.Stdout = buf
 	if err := libexec.Exec(ctx, cmd); err != nil {
@@ -64,7 +64,7 @@ func HeadTags(ctx context.Context) ([]string, error) {
 // StatusClean checks that there are no uncommitted files in the repo.
 func StatusClean(ctx context.Context) (bool, string, error) {
 	buf := &bytes.Buffer{}
-	cmd := exec.Command("git", "status", "-s")
+	cmd := exec.CommandContext(ctx, "git", "status", "-s")
 	cmd.Dir = repoPath
 	cmd.Stdout = buf
 	if err := libexec.Exec(ctx, cmd); err != nil {
@@ -83,7 +83,7 @@ func EnsureRepo(ctx context.Context, repoURL string) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			logger.Get(ctx).Info("Cloning repository", zap.String("name", repoName), zap.String("url", repoURL))
-			cmd := exec.Command("git", "clone", repoURL)
+			cmd := exec.CommandContext(ctx, "git", "clone", repoURL)
 			cmd.Dir = "../"
 			if err := libexec.Exec(ctx, cmd); err != nil {
 				return errors.Wrapf(err, "cloning repository `%s` failed", repoURL)
@@ -129,10 +129,10 @@ func CloneLocalBranch(ctx context.Context, dstDir, srcDir, localBranch, remoteBr
 		return errors.WithStack(err)
 	}
 
-	cmd1 := exec.Command("git", "fetch", "origin", remoteBranch+":"+localBranch)
+	cmd1 := exec.CommandContext(ctx, "git", "fetch", "origin", remoteBranch+":"+localBranch)
 	cmd1.Dir = srcDir
 
-	cmd2 := exec.Command("git", "clone", "--single-branch", "--no-tags", "-b", localBranch, srcAbs, ".")
+	cmd2 := exec.CommandContext(ctx, "git", "clone", "--single-branch", "--no-tags", "-b", localBranch, srcAbs, ".")
 	cmd2.Dir = dstAbs
 
 	return libexec.Exec(ctx, cmd1, cmd2)
@@ -147,15 +147,15 @@ func CloneRemoteCommit(ctx context.Context, repoURL, commitID, dstDir string) er
 	branch := "tx-crust-build/" + commitID
 
 	// Prepare common commands
-	cmdBranchFromCommitID := exec.Command("git", "branch", branch, commitID)
+	cmdBranchFromCommitID := exec.CommandContext(ctx, "git", "branch", branch, commitID)
 	cmdBranchFromCommitID.Dir = dstDir
 
-	cmdSwitchBranch := exec.Command("git", "switch", branch)
+	cmdSwitchBranch := exec.CommandContext(ctx, "git", "switch", branch)
 	cmdSwitchBranch.Dir = dstDir
 
 	// Find the name of current branch.
 	buf := &bytes.Buffer{}
-	cmd := exec.Command("git", "branch", "--show-current")
+	cmd := exec.CommandContext(ctx, "git", "branch", "--show-current")
 	cmd.Dir = dstDir
 	cmd.Stdout = buf
 
@@ -164,7 +164,7 @@ func CloneRemoteCommit(ctx context.Context, repoURL, commitID, dstDir string) er
 	// If command returns error it means there is no git repo.
 	// Clone repo and create branch from commit ID.
 	case err != nil:
-		cmdClone := exec.Command("git", "clone", repoURL, ".")
+		cmdClone := exec.CommandContext(ctx, "git", "clone", repoURL, ".")
 		cmdClone.Dir = dstDir
 
 		return libexec.Exec(ctx, cmdClone, cmdBranchFromCommitID, cmdSwitchBranch)
@@ -175,7 +175,7 @@ func CloneRemoteCommit(ctx context.Context, repoURL, commitID, dstDir string) er
 
 	// Find out if expected branch is already present in the local branches.
 	buf = &bytes.Buffer{}
-	cmd = exec.Command("git", "branch", "--format", "%(refname:short)")
+	cmd = exec.CommandContext(ctx, "git", "branch", "--format", "%(refname:short)")
 	cmd.Dir = dstDir
 	cmd.Stdout = buf
 
@@ -194,7 +194,7 @@ func CloneRemoteCommit(ctx context.Context, repoURL, commitID, dstDir string) er
 	// Branch is not available.
 	// Fetch fresh content from repo and create branch from commit ID.
 
-	cmdFetch := exec.Command("git", "fetch", "-p")
+	cmdFetch := exec.CommandContext(ctx, "git", "fetch", "-p")
 	cmdFetch.Dir = dstDir
 
 	return libexec.Exec(ctx, cmdFetch, cmdBranchFromCommitID, cmdSwitchBranch)
@@ -202,7 +202,7 @@ func CloneRemoteCommit(ctx context.Context, repoURL, commitID, dstDir string) er
 
 // RollbackChanges rolls back uncommitted changes made to the specified files.
 func RollbackChanges(ctx context.Context, files ...string) error {
-	cmd := exec.Command("git", append([]string{"checkout", "--"}, files...)...)
+	cmd := exec.CommandContext(ctx, "git", append([]string{"checkout", "--"}, files...)...)
 	cmd.Dir = repoPath
 
 	return libexec.Exec(ctx, cmd)

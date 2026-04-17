@@ -18,7 +18,7 @@ const covdataDirName = "covdatafiles"
 func CoverageConvert(ctx context.Context, txdHomeDir, dstFilePath string) error {
 	srcCovdataDir := filepath.Join(txdHomeDir, covdataDirName)
 
-	cmd := exec.Go("tool", "covdata", "textfmt", "-i="+srcCovdataDir, "-o="+dstFilePath)
+	cmd := exec.Go(ctx, "tool", "covdata", "textfmt", "-i="+srcCovdataDir, "-o="+dstFilePath)
 
 	if err := libexec.Exec(ctx, cmd); err != nil {
 		return err

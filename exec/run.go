@@ -1,14 +1,15 @@
 package exec
 
 import (
+	"context"
 	"os/exec"
 
 	"github.com/pkg/errors"
 )
 
-func toolCmd(tool string, args []string) *exec.Cmd {
+func toolCmd(ctx context.Context, tool string, args []string) *exec.Cmd {
 	verifyTool(tool)
-	return exec.Command(tool, args...)
+	return exec.CommandContext(ctx, tool, args...)
 }
 
 func verifyTool(tool string) {

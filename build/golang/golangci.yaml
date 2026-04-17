@@ -38,7 +38,10 @@ linters:
     - thelper
     - varnamelen
     - wrapcheck
+    - modernize
+    - noinlineerr
     - wsl
+    - wsl_v5
   settings:
     custom:
 {{range .CustomLinters}}      {{ .Name }}:

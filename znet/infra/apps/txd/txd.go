@@ -401,7 +401,7 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 
 	return libexec.Exec(
 		ctx,
-		exec.Command(binaryPath, fullArgs...),
+		exec.CommandContext(ctx, binaryPath, fullArgs...),
 	)
 }
 

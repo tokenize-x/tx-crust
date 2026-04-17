@@ -91,7 +91,7 @@ func (d *Docker) Stop(ctx context.Context) error {
 
 		log.Info("Stopping container")
 
-		if err := libexec.Exec(ctx, noStdout(exec.Docker("stop", "--time", "60", info.ID))); err != nil {
+		if err := libexec.Exec(ctx, noStdout(exec.Docker(ctx, "stop", "--time", "60", info.ID))); err != nil {
 			return errors.Wrapf(err, "stopping container `%s` failed", info.Name)
 		}
 
@@ -155,10 +155,10 @@ func (d *Docker) DeployContainer(ctx context.Context, app infra.Deployment) (inf
 
 	var startCmd *osexec.Cmd
 	if id != "" {
-		startCmd = exec.Docker("start", id)
+		startCmd = exec.Docker(ctx, "start", id)
 	} else {
 		runArgs := d.prepareRunArgs(name, app)
-		startCmd = exec.Docker(runArgs...)
+		startCmd = exec.Docker(ctx, runArgs...)
 	}
 	idBuf := &bytes.Buffer{}
 	startCmd.Stdout = idBuf
@@ -236,7 +236,7 @@ func (d *Docker) ensureNetwork(ctx context.Context, network string) error {
 
 	log.Info("Creating docker network")
 
-	if err := libexec.Exec(ctx, noStdout(exec.Docker("network", "create", network))); err != nil {
+	if err := libexec.Exec(ctx, noStdout(exec.Docker(ctx, "network", "create", network))); err != nil {
 		return errors.Wrapf(err, "creating network '%s' failed", network)
 	}
 
@@ -257,7 +257,7 @@ func (d *Docker) deleteNetwork(ctx context.Context, network string) error {
 	log := logger.Get(ctx).With(zap.String("network", network))
 	log.Info("Deleting docker network")
 
-	if err := libexec.Exec(ctx, noStdout(exec.Docker("network", "rm", network))); err != nil {
+	if err := libexec.Exec(ctx, noStdout(exec.Docker(ctx, "network", "rm", network))); err != nil {
 		return errors.Wrapf(err, "deleting network '%s' failed", network)
 	}
 
@@ -267,7 +267,7 @@ func (d *Docker) deleteNetwork(ctx context.Context, network string) error {
 
 func containerExists(ctx context.Context, name string) (string, error) {
 	idBuf := &bytes.Buffer{}
-	existsCmd := exec.Docker("ps", "-aq", "--no-trunc", "--filter", "name="+name)
+	existsCmd := exec.Docker(ctx, "ps", "-aq", "--no-trunc", "--filter", "name="+name)
 	existsCmd.Stdout = idBuf
 	if err := libexec.Exec(ctx, existsCmd); err != nil {
 		return "", err
@@ -284,7 +284,7 @@ type container struct {
 
 func forContainer(ctx context.Context, envName string, fn func(ctx context.Context, info container) error) error {
 	listBuf := &bytes.Buffer{}
-	listCmd := exec.Docker("ps", "-aq", "--no-trunc", "--filter", "label="+labelEnv+"="+envName)
+	listCmd := exec.Docker(ctx, "ps", "-aq", "--no-trunc", "--filter", "label="+labelEnv+"="+envName)
 	listCmd.Stdout = listBuf
 	if err := libexec.Exec(ctx, listCmd); err != nil {
 		return err
@@ -296,7 +296,7 @@ func forContainer(ctx context.Context, envName string, fn func(ctx context.Conte
 	}
 
 	inspectBuf := &bytes.Buffer{}
-	inspectCmd := exec.Docker(append([]string{"inspect"}, strings.Split(listStr, "\n")...)...)
+	inspectCmd := exec.Docker(ctx, append([]string{"inspect"}, strings.Split(listStr, "\n")...)...)
 	inspectCmd.Stdout = inspectBuf
 
 	if err := libexec.Exec(ctx, inspectCmd); err != nil {
@@ -342,9 +342,9 @@ func removeContainer(ctx context.Context, info container) error {
 	cmds := []*osexec.Cmd{}
 	if info.Running {
 		// Everything will be removed, so we don't care about graceful shutdown
-		cmds = append(cmds, noStdout(exec.Docker("kill", info.ID)))
+		cmds = append(cmds, noStdout(exec.Docker(ctx, "kill", info.ID)))
 	}
-	if err := libexec.Exec(ctx, append(cmds, noStdout(exec.Docker("rm", info.ID)))...); err != nil {
+	if err := libexec.Exec(ctx, append(cmds, noStdout(exec.Docker(ctx, "rm", info.ID)))...); err != nil {
 		return errors.Wrapf(err, "deleting container `%s` failed", info.Name)
 	}
 	return nil
@@ -352,7 +352,7 @@ func removeContainer(ctx context.Context, info container) error {
 
 func networkExists(ctx context.Context, network string) (bool, error) {
 	buf := &bytes.Buffer{}
-	cmd := exec.Docker("network", "ls", "-q", "--no-trunc", "--filter", "name="+network)
+	cmd := exec.Docker(ctx, "network", "ls", "-q", "--no-trunc", "--filter", "name="+network)
 	cmd.Stdout = buf
 	if err := libexec.Exec(ctx, cmd); err != nil {
 		return false, err
