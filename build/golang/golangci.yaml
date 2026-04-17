@@ -38,7 +38,11 @@ linters:
     - thelper
     - varnamelen
     - wrapcheck
+    - embeddedstructfieldcheck
+    - modernize
+    - noinlineerr
     - wsl
+    - wsl_v5
   settings:
     custom:
 {{range .CustomLinters}}      {{ .Name }}:
