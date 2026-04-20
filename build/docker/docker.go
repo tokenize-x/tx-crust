@@ -136,7 +136,7 @@ func BuildImage(ctx context.Context, config BuildImageConfig) error {
 	})
 
 	logger.Get(ctx).Info("Building docker images", zap.Any("build params", buildParams))
-	buildCmd := exec.Command("docker", buildParams...)
+	buildCmd := exec.CommandContext(ctx, "docker", buildParams...)
 	buildCmd.Stdin = bytes.NewReader(config.Dockerfile)
 
 	return libexec.Exec(ctx, buildCmd)
@@ -190,7 +190,7 @@ func getDockerBuildParams(ctx context.Context, input dockerBuildParamsInput) []s
 }
 
 func ensureBuilder(ctx context.Context) error {
-	inspectCmd := exec.Command("docker", "buildx", "inspect", "tx-crust")
+	inspectCmd := exec.CommandContext(ctx, "docker", "buildx", "inspect", "tx-crust")
 	inspectCmd.Stderr = io.Discard
 	err := libexec.Exec(ctx, inspectCmd)
 
@@ -198,6 +198,6 @@ func ensureBuilder(ctx context.Context) error {
 		return nil
 	}
 
-	return libexec.Exec(ctx, exec.Command("docker",
+	return libexec.Exec(ctx, exec.CommandContext(ctx, "docker",
 		"buildx", "create", "--name", "tx-crust", "--driver", "docker-container", "--bootstrap"))
 }

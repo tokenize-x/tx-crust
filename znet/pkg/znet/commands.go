@@ -57,7 +57,7 @@ func Activate(ctx context.Context, configF *infra.ConfigFactory) error {
 	if err != nil {
 		return err
 	}
-	shellCmd := osexec.Command(shell)
+	shellCmd := osexec.CommandContext(ctx, shell)
 	shellCmd.Env = append(os.Environ(),
 		"PATH="+config.WrapperDir+":"+os.Getenv("PATH"),
 		"TX_CRUST_ZNET_ENV="+configF.EnvName,

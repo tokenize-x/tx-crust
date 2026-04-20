@@ -181,7 +181,7 @@ func ensureDockerImage(ctx context.Context, image string, slots, readyCh chan st
 	log := logger.Get(ctx).With(zap.String("image", image))
 
 	imageBuf := &bytes.Buffer{}
-	imageCmd := exec.Docker("images", "-q", image)
+	imageCmd := exec.Docker(ctx, "images", "-q", image)
 	imageCmd.Stdout = imageBuf
 	if err := libexec.Exec(ctx, imageCmd); err != nil {
 		return errors.Wrapf(err, "failed to list image '%s'", image)
@@ -202,7 +202,7 @@ func ensureDockerImage(ctx context.Context, image string, slots, readyCh chan st
 
 	log.Info("Pulling docker image")
 
-	if err := libexec.Exec(ctx, exec.Docker("pull", image)); err != nil {
+	if err := libexec.Exec(ctx, exec.Docker(ctx, "pull", image)); err != nil {
 		return errors.Wrapf(err, "failed to pull docker image '%s'", image)
 	}
 

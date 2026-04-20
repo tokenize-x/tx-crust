@@ -46,8 +46,9 @@ type txRequest struct {
 }
 
 type txResult struct {
-	Validated bool `json:"validated"`
 	rippledata.TransactionWithMetaData
+
+	Validated bool `json:"validated"`
 }
 
 // UnmarshalJSON is a shim to populate the Validated field before passing control on to
@@ -93,6 +94,7 @@ type AccountInfoResult struct {
 // AccountDataWithSigners is account data with the signers list.
 type AccountDataWithSigners struct {
 	rippledata.AccountRoot
+
 	SignerList []rippledata.SignerList `json:"signer_lists"`
 }
 

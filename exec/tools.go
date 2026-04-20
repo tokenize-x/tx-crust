@@ -1,15 +1,16 @@
 package exec
 
 import (
+	"context"
 	"os/exec"
 )
 
 // Docker runs docker command.
-func Docker(args ...string) *exec.Cmd {
-	return toolCmd("docker", args)
+func Docker(ctx context.Context, args ...string) *exec.Cmd {
+	return toolCmd(ctx, "docker", args)
 }
 
 // Go runs go command.
-func Go(args ...string) *exec.Cmd {
-	return toolCmd("go", args)
+func Go(ctx context.Context, args ...string) *exec.Cmd {
+	return toolCmd(ctx, "go", args)
 }

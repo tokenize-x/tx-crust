@@ -49,7 +49,7 @@ func BuildSmartContract(
 		return errors.WithStack(err)
 	}
 
-	cmdCargo := exec.Command(tools.Path("bin/cargo", tools.TargetPlatformLocal),
+	cmdCargo := exec.CommandContext(ctx, tools.Path("bin/cargo", tools.TargetPlatformLocal),
 		"build",
 		"--release",
 		"--target", "wasm32-unknown-unknown",
@@ -63,7 +63,7 @@ func BuildSmartContract(
 	cmdCargo.Dir = path
 
 	contractFile := strings.ReplaceAll(cargo.Package.Name, "-", "_") + ".wasm"
-	cmdWASMOpt := exec.Command(tools.Path("bin/wasm-opt", tools.TargetPlatformLocal),
+	cmdWASMOpt := exec.CommandContext(ctx, tools.Path("bin/wasm-opt", tools.TargetPlatformLocal),
 		"-Os", "--signext-lowering",
 		"-o", filepath.Join("artifacts", contractFile),
 		filepath.Join(targetPath, "wasm32-unknown-unknown", "release", contractFile),

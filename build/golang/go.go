@@ -145,7 +145,7 @@ func buildLocally(ctx context.Context, config BinaryBuildConfig) error {
 		return err
 	}
 
-	cmd := exec.Command(tools.Path("bin/go", tools.TargetPlatformLocal), args...)
+	cmd := exec.CommandContext(ctx, tools.Path("bin/go", tools.TargetPlatformLocal), args...)
 	cmd.Dir = filepath.Join(modulePath, config.PackagePath)
 	cmd.Env = envs
 
@@ -249,7 +249,7 @@ func buildInDocker(ctx context.Context, config BinaryBuildConfig) error {
 	runArgs = append(runArgs, args...)
 	runArgs = append(runArgs, "-o", filepath.Join("/out", filepath.Base(config.BinOutputPath)), ".")
 
-	cmd := exec.Command("docker", runArgs...)
+	cmd := exec.CommandContext(ctx, "docker", runArgs...)
 	logger.Get(ctx).Info(
 		"Building go package in docker",
 		zap.String("package", config.PackagePath),
@@ -267,7 +267,7 @@ func RunTests(ctx context.Context, deps types.DepsFunc, config TestConfig) error
 
 	args := append([]string{"test", "-v"}, config.Flags...)
 
-	cmd := exec.Command(tools.Path("bin/go", tools.TargetPlatformLocal), args...)
+	cmd := exec.CommandContext(ctx, tools.Path("bin/go", tools.TargetPlatformLocal), args...)
 	cmd.Dir = config.PackagePath
 	cmd.Env = env()
 
@@ -338,7 +338,7 @@ func Generate(ctx context.Context, deps types.DepsFunc) error {
 	return onModule(repoPath, func(path string) error {
 		log.Info("Running go generate", zap.String("path", path))
 
-		cmd := exec.Command(tools.Path("bin/go", tools.TargetPlatformLocal), "generate", "./...")
+		cmd := exec.CommandContext(ctx, tools.Path("bin/go", tools.TargetPlatformLocal), "generate", "./...")
 		cmd.Dir = path
 		cmd.Env = env()
 		if err := libexec.Exec(ctx, cmd); err != nil {
@@ -384,7 +384,7 @@ func Test(ctx context.Context, deps types.DepsFunc) error {
 		coverageProfile := filepath.Join(coverageReportsDir, coverageName)
 
 		log.Info("Running go tests", zap.String("path", path))
-		cmd := exec.Command(
+		cmd := exec.CommandContext(ctx,
 			tools.Path("bin/go", tools.TargetPlatformLocal),
 			"test",
 			"-count=1",
@@ -443,7 +443,7 @@ func TestFuzz(ctx context.Context, deps types.DepsFunc, fuzzTime time.Duration) 
 					"-test.fuzzcachedir", fuzzCacheDir,
 				}
 				log.Info("Running fuzz test", zap.Strings("args", args))
-				cmd := exec.Command(
+				cmd := exec.CommandContext(ctx,
 					tools.Path("bin/go", tools.TargetPlatformLocal),
 					args...,
 				)
@@ -466,7 +466,7 @@ func Tidy(ctx context.Context, deps types.DepsFunc) error {
 	return onModule(repoPath, func(path string) error {
 		log.Info("Running go mod tidy", zap.String("path", path))
 
-		cmd := exec.Command(tools.Path("bin/go", tools.TargetPlatformLocal), "mod", "tidy")
+		cmd := exec.CommandContext(ctx, tools.Path("bin/go", tools.TargetPlatformLocal), "mod", "tidy")
 		cmd.Dir = path
 		cmd.Env = env()
 		if err := libexec.Exec(ctx, cmd); err != nil {
@@ -483,7 +483,7 @@ func DownloadDependencies(ctx context.Context, deps types.DepsFunc, repoPath str
 	return onModule(repoPath, func(path string) error {
 		log.Info("Running go mod download", zap.String("path", path))
 
-		cmd := exec.Command(tools.Path("bin/go", tools.TargetPlatformLocal), "mod", "download")
+		cmd := exec.CommandContext(ctx, tools.Path("bin/go", tools.TargetPlatformLocal), "mod", "download")
 		cmd.Dir = path
 		cmd.Env = env()
 		if err := libexec.Exec(ctx, cmd); err != nil {
@@ -532,7 +532,7 @@ func ModuleDirs(
 	deps(EnsureGo)
 
 	out := &bytes.Buffer{}
-	cmd := exec.Command(
+	cmd := exec.CommandContext(ctx,
 		tools.Path("bin/go", tools.TargetPlatformLocal),
 		append([]string{"list", "-m", "-json"}, modules...)...)
 	cmd.Stdout = out
