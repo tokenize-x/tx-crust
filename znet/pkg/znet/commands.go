@@ -8,6 +8,7 @@ import (
 	osexec "os/exec"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -185,28 +186,21 @@ func CoverageConvert(ctx context.Context, configF *infra.ConfigFactory) error {
 	spec := infra.NewSpec(configF)
 	config := NewConfig(configF, spec)
 
-	for appName, app := range spec.Apps {
-		if app.Type() != txd.AppType {
-			continue
-		}
-
-		if app.Info().Status != infra.AppStatusStopped {
-			return errors.New("coverage convert can't be executed on top of running environment, stop it first")
-		}
-
-		dstCoverageDir := filepath.Dir(config.CoverageOutputFile)
-		if err := os.MkdirAll(dstCoverageDir, os.ModePerm); err != nil {
-			return errors.Wrapf(err, "failed to create coverage dir `%s`", dstCoverageDir)
-		}
-
-		txdAppHome := filepath.Join(config.AppDir, appName, string(constant.ChainIDDev))
-
-		// We convert coverage from the first txd app we find since codecove results for all of them are identical
-		// because of consensus.
-		return txd.CoverageConvert(ctx, txdAppHome, config.CoverageOutputFile)
+	appName, err := pickStoppedAppName(spec, txd.AppType, "coverage convert")
+	if err != nil {
+		return err
 	}
 
-	return errors.Errorf("no %s app found", txd.AppType)
+	dstCoverageDir := filepath.Dir(config.CoverageOutputFile)
+	if err := os.MkdirAll(dstCoverageDir, os.ModePerm); err != nil {
+		return errors.Wrapf(err, "failed to create coverage dir `%s`", dstCoverageDir)
+	}
+
+	txdAppHome := filepath.Join(config.AppDir, appName, string(constant.ChainIDDev))
+
+	// We convert coverage from one txd app since codecover results for all of them are identical
+	// because of consensus.
+	return txd.CoverageConvert(ctx, txdAppHome, config.CoverageOutputFile)
 }
 
 // DumpAppDir dumps application directory to the specified destination.
@@ -214,22 +208,15 @@ func DumpAppDir(configF *infra.ConfigFactory, appType infra.AppType) (string, er
 	spec := infra.NewSpec(configF)
 	config := NewConfig(configF, spec)
 
-	for appName, app := range spec.Apps {
-		if app.Type() != appType {
-			continue
-		}
-
-		if app.Info().Status != infra.AppStatusStopped {
-			return "", errors.New("directory dump can't be executed on top of running environment, stop it first")
-		}
-
-		txdAppHome := filepath.Join(config.AppDir, appName, string(constant.ChainIDDev))
-		dumpDir := filepath.Join(config.DumpDir, appName)
-
-		return dumpDir, copyDir(txdAppHome, dumpDir)
+	appName, err := pickStoppedAppName(spec, appType, "directory dump")
+	if err != nil {
+		return "", err
 	}
 
-	return "", errors.Errorf("no %s app found", appType)
+	txdAppHome := filepath.Join(config.AppDir, appName, string(constant.ChainIDDev))
+	dumpDir := filepath.Join(config.DumpDir, appName)
+
+	return dumpDir, copyDir(txdAppHome, dumpDir)
 }
 
 // ExportGenesis exports the genesis file for one of the txd apps.
@@ -237,19 +224,34 @@ func ExportGenesis(ctx context.Context, configF *infra.ConfigFactory, modulesToE
 	spec := infra.NewSpec(configF)
 	config := NewConfig(configF, spec)
 
-	for appName, app := range spec.Apps {
-		if app.Type() != txd.AppType {
-			continue
-		}
-
-		if app.Info().Status != infra.AppStatusStopped {
-			return "", errors.New("directory dump can't be executed on top of running environment, stop it first")
-		}
-
-		return txd.ExportGenesis(ctx, appName, config, modulesToExport)
+	appName, err := pickStoppedAppName(spec, txd.AppType, "genesis export")
+	if err != nil {
+		return "", err
 	}
 
-	return "", errors.Errorf("no %s app found", txd.AppType)
+	return txd.ExportGenesis(ctx, appName, config, modulesToExport)
+}
+
+func pickStoppedAppName(spec *infra.Spec, appType infra.AppType, operation string) (string, error) {
+	var appNames []string
+	for appName, app := range spec.Apps {
+		if app.Type() == appType {
+			appNames = append(appNames, appName)
+		}
+	}
+
+	if len(appNames) == 0 {
+		return "", errors.Errorf("no %s app found", appType)
+	}
+
+	sort.Strings(appNames)
+	for _, appName := range appNames {
+		if spec.Apps[appName].Info().Status != infra.AppStatusStopped {
+			return "", errors.Errorf("%s can't be executed on top of running environment, stop it first", operation)
+		}
+	}
+
+	return appNames[0], nil
 }
 
 func saveWrapper(dir, file, command string) {
