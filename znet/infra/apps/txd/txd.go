@@ -269,6 +269,10 @@ func (c TXd) Deployment() infra.Deployment {
 				Destination: filepath.Join(targets.AppHomeDir, string(c.config.GenesisInitConfig.ChainID), "data"),
 			},
 			{
+				Source:      filepath.Join(c.config.HomeDir, "wasm-data"),
+				Destination: filepath.Join(targets.AppHomeDir, string(c.config.GenesisInitConfig.ChainID), "wasm-data"),
+			},
+			{
 				Source: filepath.Join(c.config.HomeDir, "cosmovisor", "genesis"),
 				Destination: filepath.Join(targets.AppHomeDir, string(c.config.GenesisInitConfig.ChainID), "cosmovisor",
 					"genesis"),
@@ -373,7 +377,7 @@ func (c TXd) SaveGenesis(ctx context.Context, homeDir string) error {
 
 	inputPath := filepath.Join(configDir, "genesis-creation-input.json")
 
-	if err := os.WriteFile(inputPath, inputConfig, 0644); err != nil {
+	if err := os.WriteFile(inputPath, inputConfig, 0o644); err != nil {
 		return err
 	}
 
