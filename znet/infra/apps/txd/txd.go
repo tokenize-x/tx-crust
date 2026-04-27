@@ -486,6 +486,10 @@ func (c TXd) prepare(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
+	if err := os.MkdirAll(filepath.Join(c.config.HomeDir, "wasm-data"), 0o700); err != nil {
+		return errors.WithStack(err)
+	}
+
 	// We need to pre-create empty covdata dir. Otherwise, docker creates empty dir with root ownership and go fails to
 	// create coverage files because of permissions.
 	if err := os.MkdirAll(filepath.Join(c.config.HomeDir, covdataDirName), 0o700); err != nil {
