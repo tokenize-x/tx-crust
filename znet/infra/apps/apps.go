@@ -13,7 +13,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/pkg/errors"
 
-	"github.com/tokenize-x/tx-chain/v7/pkg/config/constant"
+	"github.com/tokenize-x/tx-chain/v8/pkg/config/constant"
 	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/bigdipper"
 	"github.com/tokenize-x/tx-crust/znet/infra/apps/blockexplorer"

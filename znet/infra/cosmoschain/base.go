@@ -21,8 +21,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/tokenize-x/tx-chain/v7/pkg/client"
-	"github.com/tokenize-x/tx-chain/v7/pkg/config"
+	"github.com/tokenize-x/tx-chain/v8/pkg/client"
+	"github.com/tokenize-x/tx-chain/v8/pkg/config"
 	"github.com/tokenize-x/tx-crust/znet/infra"
 	"github.com/tokenize-x/tx-crust/znet/infra/targets"
 	"github.com/tokenize-x/tx-crust/znet/pkg/tools"
@@ -120,7 +120,7 @@ func (ba BaseApp) ClientContext() client.Context {
 
 	return client.NewContext(client.DefaultContextConfig(), moduleBasicList...).
 		WithChainID(ba.appConfig.ChainID).
-		WithRPCClient(rpcClient).
+		WithClient(rpcClient).
 		WithGRPCClient(grpcClient)
 }
 
