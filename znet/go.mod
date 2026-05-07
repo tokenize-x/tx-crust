@@ -7,9 +7,9 @@ toolchain go1.24.6
 
 require (
 	cosmossdk.io/math v1.5.3
-	github.com/CosmWasm/wasmd v0.60.2
+	github.com/CosmWasm/wasmd v0.60.6
 	github.com/cometbft/cometbft v0.38.21
-	github.com/cosmos/cosmos-sdk v0.53.5
+	github.com/cosmos/cosmos-sdk v0.53.6
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v4 v4.18.2
@@ -18,7 +18,7 @@ require (
 	github.com/rubblelabs/ripple v0.0.0-20240109131116-f99dee0aa0f3
 	github.com/samber/lo v1.49.1
 	github.com/spf13/cobra v1.10.1
-	github.com/tokenize-x/tx-chain/v7 v7.0.0-20260217111039-9296d325fd38
+	github.com/tokenize-x/tx-chain/v8 v8.0.0-20260507085824-58d04e9ee5f6
 	github.com/tokenize-x/tx-crust v0.0.0-20250422105139-051d68f6bb18
 	github.com/tokenize-x/tx-tools v0.0.0-20251006151522-f6df01ec2033
 	go.uber.org/zap v1.27.1
@@ -51,7 +51,7 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.2 // indirect
-	github.com/CosmWasm/wasmvm/v2 v2.2.4 // indirect
+	github.com/CosmWasm/wasmvm/v2 v2.3.2 // indirect
 	github.com/DataDog/datadog-go v4.8.3+incompatible // indirect
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0 // indirect
@@ -86,8 +86,8 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/gogoproto v1.7.2 // indirect
-	github.com/cosmos/iavl v1.2.4 // indirect
-	github.com/cosmos/ibc-go/v10 v10.3.0 // indirect
+	github.com/cosmos/iavl v1.2.8 // indirect
+	github.com/cosmos/ibc-go/v10 v10.5.1 // indirect
 	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v1.0.0 // indirect
 	github.com/danieljoos/wincred v1.2.1 // indirect

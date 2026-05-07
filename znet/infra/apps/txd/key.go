@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
-	"github.com/tokenize-x/tx-chain/v7/pkg/config"
+	"github.com/tokenize-x/tx-chain/v8/pkg/config"
 )
 
 // importMnemonicsToKeyring adds keys to local keystore.
