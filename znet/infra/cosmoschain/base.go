@@ -120,7 +120,7 @@ func (ba BaseApp) ClientContext() client.Context {
 
 	return client.NewContext(client.DefaultContextConfig(), moduleBasicList...).
 		WithChainID(ba.appConfig.ChainID).
-		WithRPCClient(rpcClient).
+		WithClient(rpcClient).
 		WithGRPCClient(grpcClient)
 }
 
